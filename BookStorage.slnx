@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <Project Path="src/BookStorage.Api/BookStorage.Api.csproj" />
+    <Project Path="src/BookStorage.Core/BookStorage.Core.csproj" />
+    <Project Path="src/BookStorage.Infrastructure/BookStorage.Infrastructure.csproj" />
+  </Folder>
+</Solution>

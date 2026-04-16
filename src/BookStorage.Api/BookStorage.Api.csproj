@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BookStorage.Core\BookStorage.Core.csproj" />
+    <ProjectReference Include="..\BookStorage.Infrastructure\BookStorage.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Configuration\" />
+  </ItemGroup>
+
+</Project>
