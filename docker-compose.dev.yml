@@ -1,0 +1,33 @@
+services:
+  api:
+    build:
+      target: debug
+      dockerfile: backend.Dockerfile
+    ports:
+      - "5189:8080"
+    volumes:
+      - ./src:/source/src
+      - ./Directory.Build.props:/source/Directory.Build.props
+      - ./Directory.Packages.props:/source/Directory.Packages.props
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
+      target: build
+    depends_on:
+      api:
+        condition: service_started
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./client/bookStorage.Spa:/app
+      - /app/node_modules
+    environment:
+      - VITE_PORT=5173
+      - VITE_API_PROXY=http://api:8080
+      - CHOKIDAR_USEPOLLING=true
+    entrypoint: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]

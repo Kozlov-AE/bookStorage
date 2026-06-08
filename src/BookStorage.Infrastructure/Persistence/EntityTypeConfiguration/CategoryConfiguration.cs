@@ -11,7 +11,9 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
         builder.ToTable("Categories");
         builder.HasKey(x => x.Id);
         
+        builder.Property(x => x.Id).HasConversion<GuidConverter>();
         builder.Property(x => x.Name).IsRequired().HasMaxLength(100);
+        builder.Property(x => x.ParentCategoryId).HasConversion<NullableGuidConverter>();
         
         builder.HasOne(x => x.ParentCategory)
             .WithMany(x => x.SubCategories)

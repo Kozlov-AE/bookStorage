@@ -1,45 +1,63 @@
+using System.Data.Common;
 using BookStorage.Core.Interfaces.Infrastructure;
+using BookStorage.Core.Interfaces.Persistence;
 using BookStorage.Infrastructure.Configuration;
 using BookStorage.Infrastructure.Persistence;
 using BookStorage.Infrastructure.Services;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace BookStorage.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(
-        this IServiceCollection services, 
-        IConfiguration configuration)
+    public static void AddInfrastructure(this IServiceCollection services)
     {
         services.AddOptions<StorageOptions>()
-            .Bind(configuration.GetSection(StorageOptions.SectionName));
+            .BindConfiguration(StorageOptions.SectionName).ValidateDataAnnotations().ValidateOnStart();
         services.AddOptions<DatabaseOptions>()
-            .Bind(configuration.GetSection(DatabaseOptions.SectionName));
+            .BindConfiguration(DatabaseOptions.SectionName).ValidateDataAnnotations().ValidateOnStart();
+
+        services.AddDbContext<AppDbContext>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddScoped<IFileStorageService, LocalFileStorageService>();
+    }
+    public static void UseInfrastructure(this IServiceProvider services)
+    {
+        var scope = services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<AppDbContext>>();
 
-#region Database
-        var db = configuration.GetSection("Database");
-        var provider = db["Provider"] ?? "SQLite";
-        var connectionString = db["ConnectionString"] ?? "Data Source=bookstorage.db";
+        var storageOptions = scope.ServiceProvider.GetRequiredService<IOptions<StorageOptions>>();
+        Directory.CreateDirectory(storageOptions.Value.BooksPath);
+        logger.LogInformation("Storage directory ensured: {StoragePath}", storageOptions.Value.BooksPath);
 
-        services.AddDbContext<AppDbContext>(options =>
+        var dbOptions = scope.ServiceProvider.GetRequiredService<IOptions<DatabaseOptions>>();
+        if (dbOptions.Value.Provider.Equals("sqlite", StringComparison.OrdinalIgnoreCase))
         {
-            if (provider.Equals("SQLite", StringComparison.OrdinalIgnoreCase))
+            var builder = new DbConnectionStringBuilder { ConnectionString = dbOptions.Value.ConnectionString };
+            var dataSource = builder["Data Source"]?.ToString();
+            if (!string.IsNullOrEmpty(dataSource))
             {
-                options.UseSqlite(connectionString);
+                var dir = Path.GetDirectoryName(dataSource);
+                if (!string.IsNullOrEmpty(dir))
+                    Directory.CreateDirectory(dir);
             }
-            else
-            {
-                throw new NotSupportedException($"Database provider '{provider}' is not supported.");
-            }
-        });
-#endregion
+        }
 
-        return services;
+        try
+        {
+            logger.LogInformation("Checking database and applying migrations...");
+            dbContext.Database.Migrate();
+            logger.LogInformation("Database migrations applied successfully");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error applying database migrations");
+            throw;
+        }
     }
 }

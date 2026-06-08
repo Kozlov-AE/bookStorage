@@ -6,4 +6,7 @@
     <Project Path="src/BookStorage.Core/BookStorage.Core.csproj" />
     <Project Path="src/BookStorage.Infrastructure/BookStorage.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="tests/BookStorage.Aplication.UnitTests/BookStorage.Aplication.UnitTests.csproj" Id="380180fe-bfb2-4fba-98d3-83f2b4753136" />
+  </Folder>
 </Solution>

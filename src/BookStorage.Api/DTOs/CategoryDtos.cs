@@ -1,18 +1,34 @@
-namespace BookStorage.Api.DTOs;
+﻿namespace BookStorage.Api.DTOs;
 
-public record CategoryDto(
-    int Id,
-    string Name,
-    int? ParentCategoryId,
-    IEnumerable<CategoryDto>? SubCategories
-);
+public class CategoryDto
+{
+    public string? Id { get; set; }
+    public string Name { get; set; }
+    public string? ParentCategoryId { get; set; }
+    public IEnumerable<CategoryDto>? SubCategories { get; set; }
 
-public record CreateCategoryRequest(
-    string Name,
-    int? ParentCategoryId
-);
+    public CategoryDto(string name)
+    {
+        Name = name;
+    }
+}
 
-public record UpdateCategoryRequest(
-    string Name,
-    int? ParentCategoryId
-);
+public class CreateCategoryRequestDto
+{
+    public string Name { get; set; }
+    public string? ParentCategoryId { get; set; }
+    public CreateCategoryRequestDto(string name)
+    {
+        Name = name;
+    }
+}
+
+public class UpdateCategoryRequestDto
+{
+    public string Name { get; set; }
+    public string? ParentCategoryId { get; set; }
+    public UpdateCategoryRequestDto(string name)
+    {
+        Name = name;
+    }
+}

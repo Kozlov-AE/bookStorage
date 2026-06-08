@@ -1,16 +1,14 @@
 namespace BookStorage.Api.DTOs;
 
 public record BookFileDto(
-    int Id,
-    string Format,
-    string Hash,
+    string Id,
     string FileName,
     long FileSizeBytes,
-    string ContentType,
-    DateTime UploadedAt
+    DateTime UploadedAt,
+    string? FileType,
+    string? DownloadUrl
 );
 
 public record CreateBookFileRequest(
-    string Format,
     string FileName
 );

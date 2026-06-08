@@ -2,11 +2,9 @@ using BookStorage.Core.Entities;
 
 namespace BookStorage.Core.Interfaces.Persistence;
 
-public interface IPersonRepository
+public interface IPersonRepository: IRepository<Person>
 {
-    Task<IEnumerable<Person>> GetAllAsync(CancellationToken ct = default);
-    Task<Person?> GetByIdAsync(int id, CancellationToken ct = default);
-    Task<IEnumerable<Person>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken ct = default);
-    Task<Person> AddAsync(Person person, CancellationToken ct = default);
-    Task<bool> DeleteAsync(int id, CancellationToken ct = default);
+    Task<IEnumerable<Person>> GetByName(string fullName,CancellationToken cancellationToken = default);
+    Task<IEnumerable<Person>> GetByNames(IEnumerable<string> fullNames, CancellationToken cancellationToken = default);
+    Task<IEnumerable<Person>> SearchByName(string searchPattern, CancellationToken cancellationToken = default);
 }

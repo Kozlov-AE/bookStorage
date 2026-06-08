@@ -133,3 +133,12 @@ x86/
 # Built Visual Studio Code Extensions
 *.vsix
 AGENTS.md
+opencode.json
+db
+books
+src/BookStorage.Api/appsettings.Development.json
+src/BookStorage.Api/logs
+.vscode
+.gigacode
+.opencode
+src/BookStorage.Api/appsettings.Development.json

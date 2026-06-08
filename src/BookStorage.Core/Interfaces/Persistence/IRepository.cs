@@ -1,6 +1,13 @@
-﻿namespace BookStorage.Core.Interfaces.Persistence;
+﻿using BookStorage.Core.Interfaces.Models;
 
-public interface IRepository <T> where T : class
+namespace BookStorage.Core.Interfaces.Persistence;
+
+public interface IRepository <T> where T : class, IHasId
 {
-    
+    Task<T> AddAsync(T entity, CancellationToken cancellationToken = default);
+    Task<IEnumerable<T>> AddAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
+    Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<IEnumerable<T>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default);
+    Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<bool> DeleteAsync (Guid id, CancellationToken cancellationToken = default);
 }

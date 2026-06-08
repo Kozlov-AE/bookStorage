@@ -1,8 +1,11 @@
+﻿using System.ComponentModel.DataAnnotations;
+
 namespace BookStorage.Infrastructure.Configuration;
 
 public class StorageOptions
 {
     public const string SectionName = "Storage";
     
-    public string BooksPath { get; set; } = "Books";
+    [Required] public string BooksPath { get; set; } = "Books";
+    public string? MetadataPath { get; set; } = "Metadata";
 }

@@ -1,6 +1,6 @@
-using BookStorage.Api.DTOs;
+﻿using BookStorage.Api.DTOs;
 using BookStorage.Core.Entities;
-using Microsoft.AspNetCore.Mvc;
+using BookStorage.Core.Interfaces.Application;
 
 namespace BookStorage.Api.Modules;
 
@@ -12,84 +12,77 @@ public static class BooksModule
             .WithTags("Books");
 
         group.MapGet("/", GetBooks)
-            .WithName("GetBooks");
+            .WithName("GetBooks")
+            .Produces<IEnumerable<BookListItemDto>>(200);
+
         group.MapGet("/{id:guid}", GetBook)
-            .WithName("GetBook");
+            .WithName("GetBook")
+            .Produces<BookDto>(200)
+            .Produces(404);
+
         group.MapPost("/", CreateBook)
             .DisableAntiforgery()
-            .WithName("CreateBook");
-        group.MapPut("/{id:guid}", UpdateBook)
-            .WithName("UpdateBook");
-        group.MapDelete("/{id:guid}", DeleteBook)
-            .WithName("DeleteBook");
-        group.MapPost("/upload", UploadBook)
-            .DisableAntiforgery()
-            .WithName("UploadBook");
-        group.MapGet("/download/{fileName}", DownloadBook)
-            .WithName("DownloadBook");
+            .WithName("CreateBook")
+            .Accepts<CreateBookRequestDto>("multipart/form-data")
+            .Produces<CreateBookResponseDto>(200)
+            .Produces(400);
     }
 
-    private static async Task<IResult> GetBooks(CancellationToken ct)
+    private static async Task<IResult> GetBooks(IBookService bookService, IMapper mapper, CancellationToken ct)
     {
-        await Task.CompletedTask;
-        return Results.Ok(Array.Empty<BookDto>());
+        var books = await bookService.GetAllAsync(ct);
+        var booksDto = mapper.Map<IEnumerable<Book>, IEnumerable<BookListItemDto>>(books);
+        return Results.Ok(booksDto);
     }
 
-    private static async Task<IResult> GetBook(Guid id, CancellationToken ct)
+    private static async Task<IResult> GetBook(Guid id, IBookService bookService, IMapper mapper,
+        LinkGenerator linkGenerator, HttpContext httpContext, CancellationToken ct)
     {
-        await Task.CompletedTask;
-        return Results.NotFound(new { message = "Book not found" });
+        var book = await bookService.GetByIdAsync(id, ct);
+        if (book == null)
+        {
+            return Results.NotFound();
+        }
+
+        var bookDto = mapper.Map<Book, BookDto>(book);
+
+        if (bookDto.Files != null)
+        {
+            bookDto.Files = bookDto.Files.Select(file =>
+            {
+                var url = linkGenerator.GetUriByRouteValues(
+                    httpContext, "GetBookFile", new { id = file.Id });
+                return file with { DownloadUrl = url };
+            }).ToList();
+        }
+
+        return Results.Ok(bookDto);
     }
 
     private static async Task<IResult> CreateBook(
-        [FromBody] CreateBookRequest request,
+        CreateBookRequestDto request,
+        IBookService bookService,
+        IMapper mapper,
         CancellationToken ct)
     {
-        await Task.CompletedTask;
-        return Results.Ok(new BookDto(
-            Guid.Empty, request.Title, request.Description, request.ISBN,
-            request.Pages, request.Year, DateTime.UtcNow,
-            null, null, null, null, [], [], [], []));
-    }
+        var newBook = mapper.Map<CreateBookRequestDto, Book>(request);
 
-    private static async Task<IResult> UpdateBook(
-        Guid id,
-        [FromBody] UpdateBookRequest request,
-        CancellationToken ct)
-    {
-        await Task.CompletedTask;
-        return Results.Ok(new BookDto(
-            id, request.Title, request.Description, request.ISBN,
-            request.Pages, request.Year, DateTime.UtcNow,
-            null, null, null, null, [], [], [], []));
-    }
+        var fileType = Path.GetExtension(request.File.FileName)?.TrimStart('.') ?? "";
+        if (string.IsNullOrEmpty(fileType))
+        {
+            return Results.BadRequest("File must have an extension");
+        }
 
-    private static async Task<IResult> DeleteBook(Guid id, CancellationToken ct)
-    {
-        await Task.CompletedTask;
-        return Results.NoContent();
-    }
-
-    private static async Task<IResult> UploadBook(
-        IFormFile file,
-        [FromForm] string title,
-        CancellationToken ct)
-    {
-        if (file.Length == 0)
-            return Results.BadRequest("File is empty");
-
-        if (file.Length > 100 * 1024 * 1024)
-            return Results.BadRequest("File too large (max 100 MB)");
-
-        await Task.CompletedTask;
-        return Results.Ok(new { message = "Upload placeholder - implement with EF Core", title });
-    }
-
-    private static async Task<IResult> DownloadBook(
-        string fileName,
-        CancellationToken ct)
-    {
-        await Task.CompletedTask;
-        return Results.NotFound(new { message = "Book not found", fileName });
+        await using var st = request.File.OpenReadStream();
+        var book = await bookService.CreateAsync(newBook, st, fileType, ct);
+        
+        if (book == null)
+        {
+            return Results.BadRequest("Failed to create book");
+        }
+        
+        var response = new CreateBookResponseDto(book.Id.ToString());
+        
+        return Results.Ok(response);
     }
 }

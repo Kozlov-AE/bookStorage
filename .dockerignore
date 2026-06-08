@@ -1,0 +1,17 @@
+**/.git
+**/.gitignore
+**/node_modules
+**/bin
+**/obj
+**/dist
+**/.vs
+**/.vscode
+**/.idea
+**/*.user
+**/*.DotSettings.user
+**/.gigacode
+**/.opencode
+**/opencode.json
+**/AGENTS.md
+tests/
+logs/
