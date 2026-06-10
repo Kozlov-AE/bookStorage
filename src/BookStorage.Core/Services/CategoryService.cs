@@ -63,42 +63,68 @@ public class CategoryService : ICategoryService
         return cat;
     }
 
-    public async Task<Category?> UpdateAsync(Guid id, Category category, CancellationToken ct = default)
+    public async Task<Result<Category>> UpdateAsync(Guid id, Category category, CancellationToken ct = default)
     {
-        _logger.LogInformation("Updating category with ID: {CategoryId}", id);
+        _logger.LogInformation($"Updating category with ID: {id}");
+        if (string.IsNullOrWhiteSpace(category.Name))
+        {
+            _logger.LogWarning($"Category.UpdateAsync: Category name is empty or whitespace");
+            return Result<Category>.Failure(ResultCodes.InvalidInput, "Category name is empty or whitespace");
+        }
         var existing = await _uow.Categories.GetByIdAsync(id, ct);
         if (existing == null)
         {
-            _logger.LogWarning("Category with ID {CategoryId} not found for update", id);
-            return null;
+            _logger.LogWarning($"Category.UpdateAsync: Category with ID {id} not found");
+            return Result<Category>.Failure(ResultCodes.NotFound, $"Category with ID {id} not found");
+        }
+
+        if (existing.Name != category.Name)
+        {
+            if (await _uow.Categories.CheckCategorySameNameAsync(category.Name, category.ParentCategoryId, ct))
+            {
+                return Result<Category>.Failure(ResultCodes.CategorySameName, $"Category ({category.Name}) is already in the category");
+            }
         }
 
         existing.Name = category.Name;
         existing.ParentCategoryId = category.ParentCategoryId;
+        _uow.Categories.Update(existing);
         await _uow.SaveChangesAsync(ct);
-        _logger.LogInformation("Category updated successfully: {CategoryId} - {CategoryName}", id, existing.Name);
+        _logger.LogInformation($"Category updated successfully: {id} - {existing.Name}, {existing.ParentCategoryId}");
 
-        return existing;
+        return Result<Category>.Success(existing);
     }
 
-    public async Task<bool> DeleteAsync(Guid id, CancellationToken ct = default)
+    public async Task<Result<Category>> DeleteAsync(Guid id, CancellationToken ct = default)
     {
-        _logger.LogInformation("Deleting category with ID: {CategoryId}", id);
-        var result = await _uow.Categories.DeleteAsync(id, ct);
-        if (result)
+        _logger.LogInformation($"Deleting category with ID: {id}");
+        var category = await _uow.Categories.GetByIdWithChildsAsync(id, ct);
+        if (category == null)
         {
-            _logger.LogInformation("Category deleted successfully: {CategoryId}", id);
+            _logger.LogWarning($"Category with ID {id} not found");
+            return Result<Category>.Failure(ResultCodes.NotFound, $"Category with ID {id} not found");
         }
-        else
+        if (category.SubCategories.Count > 0)
         {
-            _logger.LogWarning("Failed to delete category with ID: {CategoryId}", id);
+            _logger.LogWarning($"Category with ID {id} has subcategories and will not delete");
+            return Result<Category>.Failure(ResultCodes.CategoryRemovingNoAllowedBySubCategories, $"Category ({category.Name}) has subcategories");
         }
-        return result;
+        try
+        {
+            _uow.Categories.Delete(category);
+            await _uow.SaveChangesAsync(ct);
+            _logger.LogInformation($"Category deleted successfully: {id}");
+            return Result<Category>.Success(category!);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Failed to delete category with ID: {id}");
+            return Result<Category>.Failure(ResultCodes.InnerError, $"Unhandled Api Error");
+        }
     }
 
     private async Task<Category> CreateCategory(Category category, CancellationToken ct = default)
     {
-        var cat = await _uow.Categories.AddAsync(category, ct);
-        return category;
+        return await _uow.Categories.AddAsync(category, ct);
     }
 }

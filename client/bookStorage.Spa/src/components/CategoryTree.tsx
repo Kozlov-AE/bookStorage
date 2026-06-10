@@ -1,13 +1,14 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import {
   ChevronRightIcon, ChevronDownIcon,
   FolderIcon, FolderOpenIcon,
-  LoaderIcon, PlusIcon,
+  LoaderIcon, PlusIcon, TrashIcon, PencilIcon,
 } from '../components/Icons';
-import { useGetAllCategoriesTree, useCreateCategory } from '../api/hooks';
+import { useGetAllCategoriesTree, useCreateCategory, useUpdateCategory, useDeleteCategory } from '../api/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import type { CategoryDto } from '../api/generated/dtos';
 import { CreateCategoryModal } from './CreateCategoryModal';
+import { EditCategoryModal } from './EditCategoryModal';
 
 interface CategoryNodeProps {
   category: CategoryDto;
@@ -17,9 +18,11 @@ interface CategoryNodeProps {
   onSelect: (id: string | null) => void;
   onToggle: (id: string) => void;
   onAddChild: (parentId: string, parentName: string) => void;
+  onEdit: (id: string, name: string) => void;
+  onDelete: (id: string, name: string) => void;
 }
 
-function CategoryNode({ category, level, selectedId, expandedIds, onSelect, onToggle, onAddChild }: CategoryNodeProps) {
+function CategoryNode({ category, level, selectedId, expandedIds, onSelect, onToggle, onAddChild, onEdit, onDelete }: CategoryNodeProps) {
   const hasChildren = category.subCategories && category.subCategories.length > 0;
   const isExpanded = expandedIds.has(category.id ?? '');
   const isSelected = selectedId === category.id;
@@ -65,14 +68,32 @@ function CategoryNode({ category, level, selectedId, expandedIds, onSelect, onTo
         </button>
 
         {category.id && (
-          <button
-            onClick={() => onAddChild(category.id, category.name)}
-            className="p-1 mr-1 rounded-md text-gray-400 opacity-0 group-hover:opacity-100
-                       hover:text-blue-600 hover:bg-blue-50 transition-all shrink-0"
-            title="Add subcategory"
-          >
-            <PlusIcon className="w-3.5 h-3.5" />
-          </button>
+          <>
+            <button
+              onClick={() => onEdit(category.id!, category.name)}
+              className="p-1 rounded-md text-gray-400 opacity-0 group-hover:opacity-100
+                         hover:text-green-600 hover:bg-green-50 transition-all shrink-0"
+              title="Edit category"
+            >
+              <PencilIcon className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={() => onDelete(category.id!, category.name)}
+              className="p-1 rounded-md text-gray-400 opacity-0 group-hover:opacity-100
+                         hover:text-red-600 hover:bg-red-50 transition-all shrink-0"
+              title="Delete category"
+            >
+              <TrashIcon className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={() => onAddChild(category.id, category.name)}
+              className="p-1 mr-1 rounded-md text-gray-400 opacity-0 group-hover:opacity-100
+                         hover:text-blue-600 hover:bg-blue-50 transition-all shrink-0"
+              title="Add subcategory"
+            >
+              <PlusIcon className="w-3.5 h-3.5" />
+            </button>
+          </>
         )}
       </div>
 
@@ -88,12 +109,55 @@ function CategoryNode({ category, level, selectedId, expandedIds, onSelect, onTo
               onSelect={onSelect}
               onToggle={onToggle}
               onAddChild={onAddChild}
+              onEdit={onEdit}
+              onDelete={onDelete}
             />
           ))}
         </div>
       )}
     </div>
   );
+}
+
+function findCategoryInTree(tree: CategoryDto[] | undefined | null, id: string): CategoryDto | null {
+  if (!tree) return null;
+  for (const cat of tree) {
+    if (cat.id === id) return cat;
+    const found = findCategoryInTree(cat.subCategories, id);
+    if (found) return found;
+  }
+  return null;
+}
+
+function findParentOf(tree: CategoryDto[] | undefined | null, childId: string): CategoryDto | null {
+  if (!tree) return null;
+  for (const cat of tree) {
+    if (cat.subCategories?.some(c => c.id === childId)) return cat;
+    const found = findParentOf(cat.subCategories, childId);
+    if (found) return found;
+  }
+  return null;
+}
+
+function hasDuplicateName(tree: CategoryDto[] | undefined | null, categoryId: string, newName: string): boolean {
+  if (!tree) return false;
+  const parent = findParentOf(tree, categoryId);
+  const siblings = parent ? (parent.subCategories ?? []) : tree;
+  return siblings.some(c => c.id !== categoryId && c.name === newName);
+}
+
+function hasSiblingName(tree: CategoryDto[] | undefined | null, parentId: string | null, name: string): boolean {
+  if (!tree) return false;
+  const siblings = parentId
+    ? (findCategoryInTree(tree, parentId)?.subCategories ?? [])
+    : tree;
+  return siblings.some(c => c.name === name);
+}
+
+interface CategoryToEdit {
+  id: string;
+  name: string;
+  parentCategoryId: string | null;
 }
 
 interface CategoryTreeProps {
@@ -114,7 +178,7 @@ export function CategoryTree({ selectedId, onSelect }: CategoryTreeProps) {
 
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
-  const handleToggle = useCallback((id: string) => {
+  function handleToggle(id: string) {
     setExpandedIds(prev => {
       const next = new Set(prev);
       if (next.has(id)) {
@@ -124,7 +188,7 @@ export function CategoryTree({ selectedId, onSelect }: CategoryTreeProps) {
       }
       return next;
     });
-  }, []);
+  }
 
   const [modalState, setModalState] = useState<{
     parentId: string | null;
@@ -132,6 +196,7 @@ export function CategoryTree({ selectedId, onSelect }: CategoryTreeProps) {
   } | null>(null);
 
   const [modalName, setModalName] = useState('');
+  const [createError, setCreateError] = useState<string | null>(null);
 
   const createCategoryMutation = useCreateCategory({
     mutation: {
@@ -147,37 +212,112 @@ export function CategoryTree({ selectedId, onSelect }: CategoryTreeProps) {
           }
         }
         setModalName('');
+        setCreateError(null);
         queryClient.invalidateQueries({ queryKey: ['/api/Categories/Tree'] });
       },
     },
   });
 
-  const handleAddChild = useCallback((parentId: string, parentName: string) => {
+  const deleteCategoryMutation = useDeleteCategory({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['/api/Categories/Tree'] });
+        onSelect(null);
+      },
+    },
+  });
+
+  const [editCategory, setEditCategory] = useState<CategoryToEdit | null>(null);
+  const [editError, setEditError] = useState<string | null>(null);
+
+  const updateCategoryMutation = useUpdateCategory({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['/api/Categories/Tree'] });
+        setEditCategory(null);
+        setEditError(null);
+      },
+    },
+  });
+
+  function handleEdit(id: string, name: string) {
+    const parent = findParentOf(categories, id);
+    setEditCategory({ id, name, parentCategoryId: parent?.id ?? null });
+    setEditError(null);
+  }
+
+  function handleEditSubmit(newName: string) {
+    if (!editCategory) return;
+
+    const trimmed = newName.trim();
+    if (!trimmed) {
+      setEditError('Название категории не может быть пустым');
+      return;
+    }
+
+    if (trimmed !== editCategory.name && hasDuplicateName(categories, editCategory.id, trimmed)) {
+      setEditError('Категория с таким именем уже существует на этом уровне');
+      return;
+    }
+
+    setEditError(null);
+    updateCategoryMutation.mutate({
+      id: editCategory.id,
+      data: { name: trimmed, parentCategoryId: editCategory.parentCategoryId },
+    });
+  }
+
+  function handleDelete(id: string, name: string) {
+    const cat = findCategoryInTree(categories, id);
+    if (cat?.subCategories?.length) {
+      window.alert("Нельзя удалить категорию, имеющую дочерние категории!");
+      return;
+    }
+    if (window.confirm(`Удаление категории "${name}"?`)) {
+      deleteCategoryMutation.mutate({ id });
+    }
+  }
+
+  function handleAddChild(parentId: string, parentName: string) {
     setModalState({ parentId, parentName });
-  }, []);
+  }
 
-  const handleAddRoot = useCallback(() => {
+  function handleAddRoot() {
     setModalState({ parentId: null, parentName: null });
-  }, []);
+  }
 
-  const handleModalSubmit = useCallback((name: string) => {
+  function handleModalSubmit(name: string) {
     if (!modalState) return;
+
+    const trimmed = name.trim();
+    if (!trimmed) {
+      setCreateError('Название категории не может быть пустым');
+      return;
+    }
+
+    if (hasSiblingName(categories, modalState.parentId, trimmed)) {
+      setCreateError('Категория с таким именем уже существует на этом уровне');
+      return;
+    }
+
+    setCreateError(null);
     createCategoryMutation.mutate({
       data: {
-        name,
+        name: trimmed,
         parentCategoryId: modalState.parentId,
       },
     });
     setModalState(null);
-  }, [modalState, createCategoryMutation]);
+  }
 
-  const handleModalClose = useCallback(() => {
+  function handleModalClose() {
     setModalState(null);
-  }, []);
+    setCreateError(null);
+  }
 
-  const handleRetry = useCallback(() => {
+  function handleRetry() {
     refetch();
-  }, [refetch]);
+  }
 
   return (
     <div className="w-full bg-gray-50 border-r border-gray-200 p-3 overflow-y-auto flex flex-col">
@@ -243,6 +383,8 @@ export function CategoryTree({ selectedId, onSelect }: CategoryTreeProps) {
                   onSelect={onSelect}
                   onToggle={handleToggle}
                   onAddChild={handleAddChild}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
                 />
               ))
             ) : (
@@ -269,9 +411,20 @@ export function CategoryTree({ selectedId, onSelect }: CategoryTreeProps) {
         <CreateCategoryModal
           parentName={modalState.parentName}
           name={modalName}
-          onNameChange={setModalName}
+          error={createError}
+          onNameChange={(v) => { setModalName(v); setCreateError(null); }}
           onSubmit={handleModalSubmit}
           onClose={handleModalClose}
+        />
+      )}
+
+      {editCategory && (
+        <EditCategoryModal
+          categoryName={editCategory.name}
+          error={editError}
+          onSubmit={handleEditSubmit}
+          onClose={() => { setEditCategory(null); setEditError(null); }}
+          onClearError={() => setEditError(null)}
         />
       )}
     </div>

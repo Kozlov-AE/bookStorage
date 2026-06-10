@@ -16,3 +16,4 @@ export * from './createCategoryRequestDto';
 export * from './getApiPersonsSearchParams';
 export * from './iFormFile';
 export * from './personDto';
+export * from './updateCategoryRequestDto';

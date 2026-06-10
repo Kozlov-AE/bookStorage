@@ -33,7 +33,7 @@ public class Repository<T> : IRepository<T> where T : class, IHasId
         return entitiesToAdd;
     }
 
-public virtual async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public virtual async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await _dbSet.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
@@ -48,9 +48,12 @@ public virtual async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellati
         return await _dbSet.AsNoTracking().ToListAsync(cancellationToken);
     }
     
-    public virtual async Task Update(T entityToUpdate)
+    public virtual void Update(T entityToUpdate)
     {
-        _dbSet.Attach(entityToUpdate);
+        if (_context.Entry(entityToUpdate).State == EntityState.Detached)
+        {
+            _dbSet.Attach(entityToUpdate);
+        }
         _context.Entry(entityToUpdate).State = EntityState.Modified;
     }
 

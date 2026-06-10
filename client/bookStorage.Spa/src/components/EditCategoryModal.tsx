@@ -1,22 +1,29 @@
-import type { FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { XMarkIcon } from './Icons';
 
-interface CreateCategoryModalProps {
-  parentName: string | null;
-  name: string;
+interface EditCategoryModalProps {
+  categoryName: string;
   error?: string | null;
-  onNameChange: (name: string) => void;
   onSubmit: (name: string) => void;
   onClose: () => void;
+  onClearError?: () => void;
 }
 
-export function CreateCategoryModal({ parentName, name, error, onNameChange, onSubmit, onClose }: CreateCategoryModalProps) {
+export function EditCategoryModal({ categoryName, error, onSubmit, onClose, onClearError }: EditCategoryModalProps) {
+  const [name, setName] = useState(categoryName);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const trimmed = name.trim();
     if (!trimmed) return;
     onSubmit(trimmed);
+  };
+
+  const handleNameChange = (value: string) => {
+    setName(value);
+    if (error && onClearError) {
+      onClearError();
+    }
   };
 
   return (
@@ -30,24 +37,19 @@ export function CreateCategoryModal({ parentName, name, error, onNameChange, onS
           <XMarkIcon className="w-5 h-5" />
         </button>
 
-        <h2 className="text-lg font-semibold text-gray-900 mb-1">
-          {parentName ? 'New Subcategory' : 'New Category'}
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          Новое название категории «{categoryName}»
         </h2>
-        {parentName && (
-          <p className="text-sm text-gray-500 mb-4">
-            in <span className="font-medium text-gray-700">{parentName}</span>
-          </p>
-        )}
 
         <form onSubmit={handleSubmit}>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Category Name
+            Название категории
           </label>
           <input
             type="text"
             value={name}
-            onChange={(e) => onNameChange(e.target.value)}
-            placeholder="Enter category name"
+            onChange={(e) => handleNameChange(e.target.value)}
+            placeholder="Введите новое название"
             className={`w-full px-3 py-2 border rounded-lg text-sm
                        focus:outline-none focus:ring-2 focus:border-blue-500
                        placeholder:text-gray-400 ${
@@ -69,7 +71,7 @@ export function CreateCategoryModal({ parentName, name, error, onNameChange, onS
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100
                          rounded-lg hover:bg-gray-200 transition-colors"
             >
-              Cancel
+              Отмена
             </button>
             <button
               type="submit"
@@ -78,7 +80,7 @@ export function CreateCategoryModal({ parentName, name, error, onNameChange, onS
                          rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed
                          transition-colors"
             >
-              Create
+              Сохранить
             </button>
           </div>
         </form>

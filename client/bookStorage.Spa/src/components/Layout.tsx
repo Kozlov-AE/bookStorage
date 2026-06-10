@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import { Header } from './Header';
 import { CategoryTree } from './CategoryTree';
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 const SIDEBAR_MIN = 180;
 const SIDEBAR_MAX = 500;
@@ -23,7 +23,7 @@ export function Layout() {
   const [sidebarWidth, setSidebarWidth] = useState(getStoredWidth);
   const draggingRef = useRef(false);
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+  function handleMouseDown(e: React.MouseEvent) {
     e.preventDefault();
     draggingRef.current = true;
     document.body.style.cursor = 'col-resize';
@@ -46,7 +46,7 @@ export function Layout() {
 
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
-  }, []);
+  }
 
   useEffect(() => {
     try {

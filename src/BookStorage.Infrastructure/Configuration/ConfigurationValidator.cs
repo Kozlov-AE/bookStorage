@@ -37,8 +37,6 @@ public class ValidateDatabaseOptions : IValidateOptions<DatabaseOptions>
                         errors.Add(error);
                     }
                     break;
-                default:
-                    break;
             }
         }
         catch (Exception ex) {
@@ -60,7 +58,7 @@ public class ValidateDatabaseOptions : IValidateOptions<DatabaseOptions>
 
         foreach (string key in builder.Keys)
         {
-            result[key] = builder[key]?.ToString() ?? string.Empty;
+            result[key] = builder[key].ToString() ?? string.Empty;
         }
 
         return result;

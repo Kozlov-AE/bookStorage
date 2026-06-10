@@ -17,6 +17,19 @@ public class CategoryRepository : Repository<Category>, ICategoryRepository
             .ToListAsync(cancellationToken);
     }
 
+    public Task<Category?> GetByIdWithChildsAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return _context.Categories
+            .Include(c => c.SubCategories)
+            .FirstOrDefaultAsync(x=>x.Id==id, cancellationToken: cancellationToken);
+    }
+
+    public async Task<bool> CheckCategorySameNameAsync(string name, Guid? parentId, CancellationToken cancellationToken = default)
+    {
+        var cats = await _context.Categories.FirstOrDefaultAsync(c => c.Name == name && c.ParentCategoryId == parentId, cancellationToken);
+        return cats != null;
+    }
+
     public override async Task<IEnumerable<Category>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await _context.Categories.ToListAsync(cancellationToken: cancellationToken);

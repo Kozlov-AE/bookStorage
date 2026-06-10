@@ -5,6 +5,8 @@ export {
   useGetAllCategoriesTree,
   useGetAllCategories,
   useCreateCategory,
+  useUpdateCategory,
+  useDeleteCategory,
   useGetApiPersons,
   useGetApiPersonsSearch,
 } from './generated/bookStorageAPI';
@@ -16,6 +18,7 @@ export type {
   GetAllCategoriesTreeQueryResult,
   getAllCategoriesResponse,
   CreateCategoryMutationResult,
+  DeleteCategoryMutationResult,
   GetApiPersonsQueryResult,
   GetApiPersonsSearchQueryResult,
 } from './generated/bookStorageAPI';

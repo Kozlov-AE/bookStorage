@@ -5,7 +5,10 @@
  * API for managing book storage
  * OpenAPI spec version: v1
  */
-import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery
+} from '@tanstack/react-query';
 import type {
   DataTag,
   DefinedInitialDataOptions,
@@ -18,8 +21,8 @@ import type {
   UseMutationOptions,
   UseMutationResult,
   UseQueryOptions,
-  UseQueryResult,
-} from "@tanstack/react-query";
+  UseQueryResult
+} from '@tanstack/react-query';
 
 import type {
   BookDto,
@@ -30,1495 +33,1286 @@ import type {
   CreateCategoryRequestDto,
   GetApiPersonsSearchParams,
   PersonDto,
-} from "./dtos";
+  UpdateCategoryRequestDto
+} from './dtos';
 
 export type getBooksResponse200 = {
-  data: BookListItemDto[];
-  status: 200;
-};
+  data: BookListItemDto[]
+  status: 200
+}
 
-export type getBooksResponseSuccess = getBooksResponse200 & {
+export type getBooksResponseSuccess = (getBooksResponse200) & {
   headers: Headers;
 };
-export type getBooksResponse = getBooksResponseSuccess;
+;
+
+export type getBooksResponse = (getBooksResponseSuccess)
 
 export const getGetBooksUrl = () => {
-  return `/api/books`;
-};
 
-export const getBooks = async (
-  options?: RequestInit,
-): Promise<getBooksResponse> => {
-  const res = await fetch(getGetBooksUrl(), {
+
+
+
+  return `/api/books`
+}
+
+export const getBooks = async ( options?: RequestInit): Promise<getBooksResponse> => {
+
+  const res = await fetch(getGetBooksUrl(),
+  {
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+
+
+  }
+)
+
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: getBooksResponse["data"] = body ? JSON.parse(body) : {};
-  return { data, status: res.status, headers: res.headers } as getBooksResponse;
-};
+  const data: getBooksResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as getBooksResponse
+}
+
+
+
+
 
 export const getGetBooksQueryKey = () => {
-  return [`/api/books`] as const;
-};
+    return [
+    `/api/books`
+    ] as const;
+    }
 
-export const getGetBooksQueryOptions = <
-  TData = Awaited<ReturnType<typeof getBooks>>,
-  TError = unknown,
->(options?: {
-  query?: Partial<
-    UseQueryOptions<Awaited<ReturnType<typeof getBooks>>, TError, TData>
-  >;
-  fetch?: RequestInit;
-}) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getGetBooksQueryKey();
+export const getGetBooksQueryOptions = <TData = Awaited<ReturnType<typeof getBooks>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBooks>>, TError, TData>>, fetch?: RequestInit}
+) => {
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getBooks>>> = ({
-    signal,
-  }) => getBooks({ signal, ...fetchOptions });
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getBooks>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
-};
+  const queryKey =  queryOptions?.queryKey ?? getGetBooksQueryKey();
 
-export type GetBooksQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getBooks>>
->;
-export type GetBooksQueryError = unknown;
 
-export function useGetBooks<
-  TData = Awaited<ReturnType<typeof getBooks>>,
-  TError = unknown,
->(
-  options: {
-    query: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getBooks>>, TError, TData>
-    > &
-      Pick<
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getBooks>>> = ({ signal }) => getBooks({ signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getBooks>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetBooksQueryResult = NonNullable<Awaited<ReturnType<typeof getBooks>>>
+export type GetBooksQueryError = unknown
+
+
+export function useGetBooks<TData = Awaited<ReturnType<typeof getBooks>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBooks>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getBooks>>,
           TError,
           Awaited<ReturnType<typeof getBooks>>
-        >,
-        "initialData"
-      >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): DefinedUseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-export function useGetBooks<
-  TData = Awaited<ReturnType<typeof getBooks>>,
-  TError = unknown,
->(
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getBooks>>, TError, TData>
-    > &
-      Pick<
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetBooks<TData = Awaited<ReturnType<typeof getBooks>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBooks>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getBooks>>,
           TError,
           Awaited<ReturnType<typeof getBooks>>
-        >,
-        "initialData"
-      >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetBooks<TData = Awaited<ReturnType<typeof getBooks>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBooks>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useGetBooks<
-  TData = Awaited<ReturnType<typeof getBooks>>,
-  TError = unknown,
->(
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getBooks>>, TError, TData>
-    >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
+export function useGetBooks<TData = Awaited<ReturnType<typeof getBooks>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBooks>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-export function useGetBooks<
-  TData = Awaited<ReturnType<typeof getBooks>>,
-  TError = unknown,
->(
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getBooks>>, TError, TData>
-    >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetBooksQueryOptions(options);
+  const queryOptions = getGetBooksQueryOptions(options)
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
+
+
 
 export type createBookResponse200 = {
-  data: CreateBookResponseDto;
-  status: 200;
-};
+  data: CreateBookResponseDto
+  status: 200
+}
 
 export type createBookResponse400 = {
-  data: void;
-  status: 400;
-};
+  data: void
+  status: 400
+}
 
-export type createBookResponseSuccess = createBookResponse200 & {
+export type createBookResponseSuccess = (createBookResponse200) & {
   headers: Headers;
 };
-export type createBookResponseError = createBookResponse400 & {
+export type createBookResponseError = (createBookResponse400) & {
   headers: Headers;
 };
 
-export type createBookResponse =
-  | createBookResponseSuccess
-  | createBookResponseError;
+export type createBookResponse = (createBookResponseSuccess | createBookResponseError)
 
 export const getCreateBookUrl = () => {
-  return `/api/books`;
-};
 
-export const createBook = async (
-  createBookRequestDto: CreateBookRequestDto,
-  options?: RequestInit,
-): Promise<createBookResponse> => {
-  const formData = new FormData();
-  formData.append(`title`, createBookRequestDto.title);
-  formData.append(`file`, createBookRequestDto.file);
-  if (
-    createBookRequestDto.description !== undefined &&
-    createBookRequestDto.description !== null
-  ) {
-    formData.append(`description`, createBookRequestDto.description);
-  }
-  if (
-    createBookRequestDto.category !== undefined &&
-    createBookRequestDto.category !== null
-  ) {
-    formData.append(`category`, JSON.stringify(createBookRequestDto.category));
-  }
-  if (
-    createBookRequestDto.authors !== undefined &&
-    createBookRequestDto.authors !== null
-  ) {
-    formData.append(`authors`, JSON.stringify(createBookRequestDto.authors));
-  }
 
-  const res = await fetch(getCreateBookUrl(), {
+
+
+  return `/api/books`
+}
+
+export const createBook = async (createBookRequestDto: CreateBookRequestDto, options?: RequestInit): Promise<createBookResponse> => {
+    const formData = new FormData();
+formData.append(`title`, createBookRequestDto.title);
+formData.append(`file`, createBookRequestDto.file);
+if(createBookRequestDto.description !== undefined && createBookRequestDto.description !== null) {
+ formData.append(`description`, createBookRequestDto.description);
+ }
+if(createBookRequestDto.category !== undefined && createBookRequestDto.category !== null) {
+ formData.append(`category`, JSON.stringify(createBookRequestDto.category));
+  }
+ if(createBookRequestDto.authors !== undefined && createBookRequestDto.authors !== null) {
+ formData.append(`authors`, JSON.stringify(createBookRequestDto.authors));
+ }
+
+  const res = await fetch(getCreateBookUrl(),
+  {
     ...options,
-    method: "POST",
-    body: formData,
-  });
+    method: 'POST'
+    ,
+    body:
+      formData,
+  }
+)
+
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: createBookResponse["data"] = body ? JSON.parse(body) : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as createBookResponse;
-};
+  const data: createBookResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as createBookResponse
+}
 
-export const getCreateBookMutationOptions = <
-  TError = void,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof createBook>>,
-    TError,
-    { data: CreateBookRequestDto },
-    TContext
-  >;
-  fetch?: RequestInit;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof createBook>>,
-  TError,
-  { data: CreateBookRequestDto },
-  TContext
-> => {
-  const mutationKey = ["createBook"];
-  const { mutation: mutationOptions, fetch: fetchOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, fetch: undefined };
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof createBook>>,
-    { data: CreateBookRequestDto }
-  > = (props) => {
-    const { data } = props ?? {};
 
-    return createBook(data, fetchOptions);
-  };
 
-  return { mutationFn, ...mutationOptions };
-};
+export const getCreateBookMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createBook>>, TError,{data: CreateBookRequestDto}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof createBook>>, TError,{data: CreateBookRequestDto}, TContext> => {
 
-export type CreateBookMutationResult = NonNullable<
-  Awaited<ReturnType<typeof createBook>>
->;
-export type CreateBookMutationBody = CreateBookRequestDto;
-export type CreateBookMutationError = void;
+const mutationKey = ['createBook'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
 
-export const useCreateBook = <TError = void, TContext = unknown>(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof createBook>>,
-      TError,
-      { data: CreateBookRequestDto },
-      TContext
-    >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): UseMutationResult<
-  Awaited<ReturnType<typeof createBook>>,
-  TError,
-  { data: CreateBookRequestDto },
-  TContext
-> => {
-  return useMutation(getCreateBookMutationOptions(options), queryClient);
-};
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createBook>>, {data: CreateBookRequestDto}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createBook(data,fetchOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateBookMutationResult = NonNullable<Awaited<ReturnType<typeof createBook>>>
+    export type CreateBookMutationBody = CreateBookRequestDto
+    export type CreateBookMutationError = void
+
+    export const useCreateBook = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createBook>>, TError,{data: CreateBookRequestDto}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createBook>>,
+        TError,
+        {data: CreateBookRequestDto},
+        TContext
+      > => {
+      return useMutation(getCreateBookMutationOptions(options), queryClient);
+    }
 
 export type getBookResponse200 = {
-  data: BookDto;
-  status: 200;
-};
+  data: BookDto
+  status: 200
+}
 
 export type getBookResponse404 = {
-  data: void;
-  status: 404;
-};
+  data: void
+  status: 404
+}
 
-export type getBookResponseSuccess = getBookResponse200 & {
+export type getBookResponseSuccess = (getBookResponse200) & {
   headers: Headers;
 };
-export type getBookResponseError = getBookResponse404 & {
+export type getBookResponseError = (getBookResponse404) & {
   headers: Headers;
 };
 
-export type getBookResponse = getBookResponseSuccess | getBookResponseError;
+export type getBookResponse = (getBookResponseSuccess | getBookResponseError)
 
-export const getGetBookUrl = (id: string) => {
-  return `/api/books/${id}`;
-};
+export const getGetBookUrl = (id: string,) => {
 
-export const getBook = async (
-  id: string,
-  options?: RequestInit,
-): Promise<getBookResponse> => {
-  const res = await fetch(getGetBookUrl(id), {
+
+
+
+  return `/api/books/${id}`
+}
+
+export const getBook = async (id: string, options?: RequestInit): Promise<getBookResponse> => {
+
+  const res = await fetch(getGetBookUrl(id),
+  {
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+
+
+  }
+)
+
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: getBookResponse["data"] = body ? JSON.parse(body) : {};
-  return { data, status: res.status, headers: res.headers } as getBookResponse;
-};
+  const data: getBookResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as getBookResponse
+}
 
-export const getGetBookQueryKey = (id: string) => {
-  return [`/api/books/${id}`] as const;
-};
 
-export const getGetBookQueryOptions = <
-  TData = Awaited<ReturnType<typeof getBook>>,
-  TError = void,
->(
-  id: string,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getBook>>, TError, TData>
-    >;
-    fetch?: RequestInit;
-  },
+
+
+
+export const getGetBookQueryKey = (id: string,) => {
+    return [
+    `/api/books/${id}`
+    ] as const;
+    }
+
+
+export const getGetBookQueryOptions = <TData = Awaited<ReturnType<typeof getBook>>, TError = void>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBook>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getGetBookQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getBook>>> = ({
-    signal,
-  }) => getBook(id, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getGetBookQueryKey(id);
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<Awaited<ReturnType<typeof getBook>>, TError, TData> & {
-    queryKey: DataTag<QueryKey, TData, TError>;
-  };
-};
 
-export type GetBookQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getBook>>
->;
-export type GetBookQueryError = void;
 
-export function useGetBook<
-  TData = Awaited<ReturnType<typeof getBook>>,
-  TError = void,
->(
-  id: string,
-  options: {
-    query: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getBook>>, TError, TData>
-    > &
-      Pick<
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getBook>>> = ({ signal }) => getBook(id, { signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getBook>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetBookQueryResult = NonNullable<Awaited<ReturnType<typeof getBook>>>
+export type GetBookQueryError = void
+
+
+export function useGetBook<TData = Awaited<ReturnType<typeof getBook>>, TError = void>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBook>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getBook>>,
           TError,
           Awaited<ReturnType<typeof getBook>>
-        >,
-        "initialData"
-      >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): DefinedUseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-export function useGetBook<
-  TData = Awaited<ReturnType<typeof getBook>>,
-  TError = void,
->(
-  id: string,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getBook>>, TError, TData>
-    > &
-      Pick<
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetBook<TData = Awaited<ReturnType<typeof getBook>>, TError = void>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBook>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getBook>>,
           TError,
           Awaited<ReturnType<typeof getBook>>
-        >,
-        "initialData"
-      >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-export function useGetBook<
-  TData = Awaited<ReturnType<typeof getBook>>,
-  TError = void,
->(
-  id: string,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getBook>>, TError, TData>
-    >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetBook<TData = Awaited<ReturnType<typeof getBook>>, TError = void>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBook>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useGetBook<
-  TData = Awaited<ReturnType<typeof getBook>>,
-  TError = void,
->(
-  id: string,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getBook>>, TError, TData>
-    >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetBookQueryOptions(id, options);
+export function useGetBook<TData = Awaited<ReturnType<typeof getBook>>, TError = void>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBook>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const queryOptions = getGetBookQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
+
+
 
 export type postApiPersonsResponse200 = {
-  data: void;
-  status: 200;
-};
+  data: void
+  status: 200
+}
 
-export type postApiPersonsResponseSuccess = postApiPersonsResponse200 & {
+export type postApiPersonsResponseSuccess = (postApiPersonsResponse200) & {
   headers: Headers;
 };
-export type postApiPersonsResponse = postApiPersonsResponseSuccess;
+;
+
+export type postApiPersonsResponse = (postApiPersonsResponseSuccess)
 
 export const getPostApiPersonsUrl = () => {
-  return `/api/Persons`;
-};
 
-export const postApiPersons = async (
-  personDto: PersonDto,
-  options?: RequestInit,
-): Promise<postApiPersonsResponse> => {
-  const res = await fetch(getPostApiPersonsUrl(), {
+
+
+
+  return `/api/Persons`
+}
+
+export const postApiPersons = async (personDto: PersonDto, options?: RequestInit): Promise<postApiPersonsResponse> => {
+
+  const res = await fetch(getPostApiPersonsUrl(),
+  {
     ...options,
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...options?.headers },
-    body: JSON.stringify(personDto),
-  });
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      personDto,)
+  }
+)
+
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: postApiPersonsResponse["data"] = body
-    ? JSON.parse(body)
-    : undefined;
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as postApiPersonsResponse;
-};
+  const data: postApiPersonsResponse['data'] = body ? JSON.parse(body) : undefined
+  return { data, status: res.status, headers: res.headers } as postApiPersonsResponse
+}
 
-export const getPostApiPersonsMutationOptions = <
-  TError = unknown,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof postApiPersons>>,
-    TError,
-    { data: PersonDto },
-    TContext
-  >;
-  fetch?: RequestInit;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof postApiPersons>>,
-  TError,
-  { data: PersonDto },
-  TContext
-> => {
-  const mutationKey = ["postApiPersons"];
-  const { mutation: mutationOptions, fetch: fetchOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, fetch: undefined };
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof postApiPersons>>,
-    { data: PersonDto }
-  > = (props) => {
-    const { data } = props ?? {};
 
-    return postApiPersons(data, fetchOptions);
-  };
 
-  return { mutationFn, ...mutationOptions };
-};
+export const getPostApiPersonsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPersons>>, TError,{data: PersonDto}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiPersons>>, TError,{data: PersonDto}, TContext> => {
 
-export type PostApiPersonsMutationResult = NonNullable<
-  Awaited<ReturnType<typeof postApiPersons>>
->;
-export type PostApiPersonsMutationBody = PersonDto;
-export type PostApiPersonsMutationError = unknown;
+const mutationKey = ['postApiPersons'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
 
-export const usePostApiPersons = <TError = unknown, TContext = unknown>(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof postApiPersons>>,
-      TError,
-      { data: PersonDto },
-      TContext
-    >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): UseMutationResult<
-  Awaited<ReturnType<typeof postApiPersons>>,
-  TError,
-  { data: PersonDto },
-  TContext
-> => {
-  return useMutation(getPostApiPersonsMutationOptions(options), queryClient);
-};
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiPersons>>, {data: PersonDto}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postApiPersons(data,fetchOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiPersonsMutationResult = NonNullable<Awaited<ReturnType<typeof postApiPersons>>>
+    export type PostApiPersonsMutationBody = PersonDto
+    export type PostApiPersonsMutationError = unknown
+
+    export const usePostApiPersons = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPersons>>, TError,{data: PersonDto}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiPersons>>,
+        TError,
+        {data: PersonDto},
+        TContext
+      > => {
+      return useMutation(getPostApiPersonsMutationOptions(options), queryClient);
+    }
 
 export type getApiPersonsResponse200 = {
-  data: PersonDto[];
-  status: 200;
-};
+  data: PersonDto[]
+  status: 200
+}
 
-export type getApiPersonsResponseSuccess = getApiPersonsResponse200 & {
+export type getApiPersonsResponseSuccess = (getApiPersonsResponse200) & {
   headers: Headers;
 };
-export type getApiPersonsResponse = getApiPersonsResponseSuccess;
+;
+
+export type getApiPersonsResponse = (getApiPersonsResponseSuccess)
 
 export const getGetApiPersonsUrl = () => {
-  return `/api/Persons`;
-};
 
-export const getApiPersons = async (
-  options?: RequestInit,
-): Promise<getApiPersonsResponse> => {
-  const res = await fetch(getGetApiPersonsUrl(), {
+
+
+
+  return `/api/Persons`
+}
+
+export const getApiPersons = async ( options?: RequestInit): Promise<getApiPersonsResponse> => {
+
+  const res = await fetch(getGetApiPersonsUrl(),
+  {
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+
+
+  }
+)
+
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: getApiPersonsResponse["data"] = body ? JSON.parse(body) : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as getApiPersonsResponse;
-};
+  const data: getApiPersonsResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as getApiPersonsResponse
+}
+
+
+
+
 
 export const getGetApiPersonsQueryKey = () => {
-  return [`/api/Persons`] as const;
-};
+    return [
+    `/api/Persons`
+    ] as const;
+    }
 
-export const getGetApiPersonsQueryOptions = <
-  TData = Awaited<ReturnType<typeof getApiPersons>>,
-  TError = unknown,
->(options?: {
-  query?: Partial<
-    UseQueryOptions<Awaited<ReturnType<typeof getApiPersons>>, TError, TData>
-  >;
-  fetch?: RequestInit;
-}) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getGetApiPersonsQueryKey();
+export const getGetApiPersonsQueryOptions = <TData = Awaited<ReturnType<typeof getApiPersons>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPersons>>, TError, TData>>, fetch?: RequestInit}
+) => {
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPersons>>> = ({
-    signal,
-  }) => getApiPersons({ signal, ...fetchOptions });
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getApiPersons>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
-};
+  const queryKey =  queryOptions?.queryKey ?? getGetApiPersonsQueryKey();
 
-export type GetApiPersonsQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getApiPersons>>
->;
-export type GetApiPersonsQueryError = unknown;
 
-export function useGetApiPersons<
-  TData = Awaited<ReturnType<typeof getApiPersons>>,
-  TError = unknown,
->(
-  options: {
-    query: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getApiPersons>>, TError, TData>
-    > &
-      Pick<
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPersons>>> = ({ signal }) => getApiPersons({ signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiPersons>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiPersonsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiPersons>>>
+export type GetApiPersonsQueryError = unknown
+
+
+export function useGetApiPersons<TData = Awaited<ReturnType<typeof getApiPersons>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPersons>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiPersons>>,
           TError,
           Awaited<ReturnType<typeof getApiPersons>>
-        >,
-        "initialData"
-      >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): DefinedUseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-export function useGetApiPersons<
-  TData = Awaited<ReturnType<typeof getApiPersons>>,
-  TError = unknown,
->(
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getApiPersons>>, TError, TData>
-    > &
-      Pick<
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiPersons<TData = Awaited<ReturnType<typeof getApiPersons>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPersons>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiPersons>>,
           TError,
           Awaited<ReturnType<typeof getApiPersons>>
-        >,
-        "initialData"
-      >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-export function useGetApiPersons<
-  TData = Awaited<ReturnType<typeof getApiPersons>>,
-  TError = unknown,
->(
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getApiPersons>>, TError, TData>
-    >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiPersons<TData = Awaited<ReturnType<typeof getApiPersons>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPersons>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useGetApiPersons<
-  TData = Awaited<ReturnType<typeof getApiPersons>>,
-  TError = unknown,
->(
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getApiPersons>>, TError, TData>
-    >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetApiPersonsQueryOptions(options);
+export function useGetApiPersons<TData = Awaited<ReturnType<typeof getApiPersons>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPersons>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const queryOptions = getGetApiPersonsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
+
+
+
+
+
+
 export type getApiPersonsSearchResponse200 = {
-  data: PersonDto[];
-  status: 200;
+  data: PersonDto[]
+  status: 200
+}
+
+export type getApiPersonsSearchResponseSuccess = (getApiPersonsSearchResponse200) & {
+  headers: Headers;
 };
+;
 
-export type getApiPersonsSearchResponseSuccess =
-  getApiPersonsSearchResponse200 & {
-    headers: Headers;
-  };
-export type getApiPersonsSearchResponse = getApiPersonsSearchResponseSuccess;
+export type getApiPersonsSearchResponse = (getApiPersonsSearchResponseSuccess)
 
-export const getGetApiPersonsSearchUrl = (
-  params: GetApiPersonsSearchParams,
-) => {
+export const getGetApiPersonsSearchUrl = (params: GetApiPersonsSearchParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+
     if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
   });
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0
-    ? `/api/Persons/search?${stringifiedParams}`
-    : `/api/Persons/search`;
-};
+  return stringifiedParams.length > 0 ? `/api/Persons/search?${stringifiedParams}` : `/api/Persons/search`
+}
 
-export const getApiPersonsSearch = async (
-  params: GetApiPersonsSearchParams,
-  options?: RequestInit,
-): Promise<getApiPersonsSearchResponse> => {
-  const res = await fetch(getGetApiPersonsSearchUrl(params), {
+export const getApiPersonsSearch = async (params: GetApiPersonsSearchParams, options?: RequestInit): Promise<getApiPersonsSearchResponse> => {
+
+  const res = await fetch(getGetApiPersonsSearchUrl(params),
+  {
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+
+
+  }
+)
+
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: getApiPersonsSearchResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as getApiPersonsSearchResponse;
-};
+  const data: getApiPersonsSearchResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as getApiPersonsSearchResponse
+}
 
-export const getGetApiPersonsSearchQueryKey = (
-  params?: GetApiPersonsSearchParams,
+
+
+
+
+export const getGetApiPersonsSearchQueryKey = (params?: GetApiPersonsSearchParams,) => {
+    return [
+    `/api/Persons/search`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetApiPersonsSearchQueryOptions = <TData = Awaited<ReturnType<typeof getApiPersonsSearch>>, TError = unknown>(params: GetApiPersonsSearchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPersonsSearch>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  return [`/api/Persons/search`, ...(params ? [params] : [])] as const;
-};
 
-export const getGetApiPersonsSearchQueryOptions = <
-  TData = Awaited<ReturnType<typeof getApiPersonsSearch>>,
-  TError = unknown,
->(
-  params: GetApiPersonsSearchParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getApiPersonsSearch>>,
-        TError,
-        TData
-      >
-    >;
-    fetch?: RequestInit;
-  },
-) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getGetApiPersonsSearchQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetApiPersonsSearchQueryKey(params);
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getApiPersonsSearch>>
-  > = ({ signal }) => getApiPersonsSearch(params, { signal, ...fetchOptions });
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getApiPersonsSearch>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
-};
 
-export type GetApiPersonsSearchQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getApiPersonsSearch>>
->;
-export type GetApiPersonsSearchQueryError = unknown;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPersonsSearch>>> = ({ signal }) => getApiPersonsSearch(params, { signal, ...fetchOptions });
 
-export function useGetApiPersonsSearch<
-  TData = Awaited<ReturnType<typeof getApiPersonsSearch>>,
-  TError = unknown,
->(
-  params: GetApiPersonsSearchParams,
-  options: {
-    query: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getApiPersonsSearch>>,
-        TError,
-        TData
-      >
-    > &
-      Pick<
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiPersonsSearch>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiPersonsSearchQueryResult = NonNullable<Awaited<ReturnType<typeof getApiPersonsSearch>>>
+export type GetApiPersonsSearchQueryError = unknown
+
+
+export function useGetApiPersonsSearch<TData = Awaited<ReturnType<typeof getApiPersonsSearch>>, TError = unknown>(
+ params: GetApiPersonsSearchParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPersonsSearch>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiPersonsSearch>>,
           TError,
           Awaited<ReturnType<typeof getApiPersonsSearch>>
-        >,
-        "initialData"
-      >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): DefinedUseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-export function useGetApiPersonsSearch<
-  TData = Awaited<ReturnType<typeof getApiPersonsSearch>>,
-  TError = unknown,
->(
-  params: GetApiPersonsSearchParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getApiPersonsSearch>>,
-        TError,
-        TData
-      >
-    > &
-      Pick<
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiPersonsSearch<TData = Awaited<ReturnType<typeof getApiPersonsSearch>>, TError = unknown>(
+ params: GetApiPersonsSearchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPersonsSearch>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiPersonsSearch>>,
           TError,
           Awaited<ReturnType<typeof getApiPersonsSearch>>
-        >,
-        "initialData"
-      >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-export function useGetApiPersonsSearch<
-  TData = Awaited<ReturnType<typeof getApiPersonsSearch>>,
-  TError = unknown,
->(
-  params: GetApiPersonsSearchParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getApiPersonsSearch>>,
-        TError,
-        TData
-      >
-    >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiPersonsSearch<TData = Awaited<ReturnType<typeof getApiPersonsSearch>>, TError = unknown>(
+ params: GetApiPersonsSearchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPersonsSearch>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useGetApiPersonsSearch<
-  TData = Awaited<ReturnType<typeof getApiPersonsSearch>>,
-  TError = unknown,
->(
-  params: GetApiPersonsSearchParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getApiPersonsSearch>>,
-        TError,
-        TData
-      >
-    >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetApiPersonsSearchQueryOptions(params, options);
+export function useGetApiPersonsSearch<TData = Awaited<ReturnType<typeof getApiPersonsSearch>>, TError = unknown>(
+ params: GetApiPersonsSearchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPersonsSearch>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const queryOptions = getGetApiPersonsSearchQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
+
+
 
 export type createCategoryResponse200 = {
-  data: CategoryDto;
-  status: 200;
-};
+  data: CategoryDto
+  status: 200
+}
 
 export type createCategoryResponse400 = {
-  data: void;
-  status: 400;
-};
+  data: void
+  status: 400
+}
 
-export type createCategoryResponseSuccess = createCategoryResponse200 & {
+export type createCategoryResponseSuccess = (createCategoryResponse200) & {
   headers: Headers;
 };
-export type createCategoryResponseError = createCategoryResponse400 & {
+export type createCategoryResponseError = (createCategoryResponse400) & {
   headers: Headers;
 };
 
-export type createCategoryResponse =
-  | createCategoryResponseSuccess
-  | createCategoryResponseError;
+export type createCategoryResponse = (createCategoryResponseSuccess | createCategoryResponseError)
 
 export const getCreateCategoryUrl = () => {
-  return `/api/Categories`;
-};
 
-export const createCategory = async (
-  createCategoryRequestDto: CreateCategoryRequestDto,
-  options?: RequestInit,
-): Promise<createCategoryResponse> => {
-  const res = await fetch(getCreateCategoryUrl(), {
+
+
+
+  return `/api/Categories`
+}
+
+export const createCategory = async (createCategoryRequestDto: CreateCategoryRequestDto, options?: RequestInit): Promise<createCategoryResponse> => {
+
+  const res = await fetch(getCreateCategoryUrl(),
+  {
     ...options,
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...options?.headers },
-    body: JSON.stringify(createCategoryRequestDto),
-  });
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createCategoryRequestDto,)
+  }
+)
+
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: createCategoryResponse["data"] = body ? JSON.parse(body) : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as createCategoryResponse;
-};
+  const data: createCategoryResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as createCategoryResponse
+}
 
-export const getCreateCategoryMutationOptions = <
-  TError = void,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof createCategory>>,
-    TError,
-    { data: CreateCategoryRequestDto },
-    TContext
-  >;
-  fetch?: RequestInit;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof createCategory>>,
-  TError,
-  { data: CreateCategoryRequestDto },
-  TContext
-> => {
-  const mutationKey = ["createCategory"];
-  const { mutation: mutationOptions, fetch: fetchOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, fetch: undefined };
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof createCategory>>,
-    { data: CreateCategoryRequestDto }
-  > = (props) => {
-    const { data } = props ?? {};
 
-    return createCategory(data, fetchOptions);
-  };
 
-  return { mutationFn, ...mutationOptions };
-};
+export const getCreateCategoryMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCategory>>, TError,{data: CreateCategoryRequestDto}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof createCategory>>, TError,{data: CreateCategoryRequestDto}, TContext> => {
 
-export type CreateCategoryMutationResult = NonNullable<
-  Awaited<ReturnType<typeof createCategory>>
->;
-export type CreateCategoryMutationBody = CreateCategoryRequestDto;
-export type CreateCategoryMutationError = void;
+const mutationKey = ['createCategory'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
 
-export const useCreateCategory = <TError = void, TContext = unknown>(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof createCategory>>,
-      TError,
-      { data: CreateCategoryRequestDto },
-      TContext
-    >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): UseMutationResult<
-  Awaited<ReturnType<typeof createCategory>>,
-  TError,
-  { data: CreateCategoryRequestDto },
-  TContext
-> => {
-  return useMutation(getCreateCategoryMutationOptions(options), queryClient);
-};
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createCategory>>, {data: CreateCategoryRequestDto}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createCategory(data,fetchOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateCategoryMutationResult = NonNullable<Awaited<ReturnType<typeof createCategory>>>
+    export type CreateCategoryMutationBody = CreateCategoryRequestDto
+    export type CreateCategoryMutationError = void
+
+    export const useCreateCategory = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCategory>>, TError,{data: CreateCategoryRequestDto}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createCategory>>,
+        TError,
+        {data: CreateCategoryRequestDto},
+        TContext
+      > => {
+      return useMutation(getCreateCategoryMutationOptions(options), queryClient);
+    }
 
 export type getAllCategoriesResponse200 = {
-  data: CategoryDto[];
-  status: 200;
-};
+  data: CategoryDto[]
+  status: 200
+}
 
-export type getAllCategoriesResponseSuccess = getAllCategoriesResponse200 & {
+export type getAllCategoriesResponseSuccess = (getAllCategoriesResponse200) & {
   headers: Headers;
 };
-export type getAllCategoriesResponse = getAllCategoriesResponseSuccess;
+;
+
+export type getAllCategoriesResponse = (getAllCategoriesResponseSuccess)
 
 export const getGetAllCategoriesUrl = () => {
-  return `/api/Categories`;
-};
 
-export const getAllCategories = async (
-  options?: RequestInit,
-): Promise<getAllCategoriesResponse> => {
-  const res = await fetch(getGetAllCategoriesUrl(), {
+
+
+
+  return `/api/Categories`
+}
+
+export const getAllCategories = async ( options?: RequestInit): Promise<getAllCategoriesResponse> => {
+
+  const res = await fetch(getGetAllCategoriesUrl(),
+  {
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+
+
+  }
+)
+
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: getAllCategoriesResponse["data"] = body ? JSON.parse(body) : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as getAllCategoriesResponse;
-};
+  const data: getAllCategoriesResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as getAllCategoriesResponse
+}
+
+
+
+
 
 export const getGetAllCategoriesQueryKey = () => {
-  return [`/api/Categories`] as const;
-};
+    return [
+    `/api/Categories`
+    ] as const;
+    }
 
-export const getGetAllCategoriesQueryOptions = <
-  TData = Awaited<ReturnType<typeof getAllCategories>>,
-  TError = unknown,
->(options?: {
-  query?: Partial<
-    UseQueryOptions<Awaited<ReturnType<typeof getAllCategories>>, TError, TData>
-  >;
-  fetch?: RequestInit;
-}) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getGetAllCategoriesQueryKey();
+export const getGetAllCategoriesQueryOptions = <TData = Awaited<ReturnType<typeof getAllCategories>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCategories>>, TError, TData>>, fetch?: RequestInit}
+) => {
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getAllCategories>>
-  > = ({ signal }) => getAllCategories({ signal, ...fetchOptions });
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getAllCategories>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
-};
+  const queryKey =  queryOptions?.queryKey ?? getGetAllCategoriesQueryKey();
 
-export type GetAllCategoriesQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getAllCategories>>
->;
-export type GetAllCategoriesQueryError = unknown;
 
-export function useGetAllCategories<
-  TData = Awaited<ReturnType<typeof getAllCategories>>,
-  TError = unknown,
->(
-  options: {
-    query: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getAllCategories>>,
-        TError,
-        TData
-      >
-    > &
-      Pick<
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAllCategories>>> = ({ signal }) => getAllCategories({ signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAllCategories>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetAllCategoriesQueryResult = NonNullable<Awaited<ReturnType<typeof getAllCategories>>>
+export type GetAllCategoriesQueryError = unknown
+
+
+export function useGetAllCategories<TData = Awaited<ReturnType<typeof getAllCategories>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCategories>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getAllCategories>>,
           TError,
           Awaited<ReturnType<typeof getAllCategories>>
-        >,
-        "initialData"
-      >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): DefinedUseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-export function useGetAllCategories<
-  TData = Awaited<ReturnType<typeof getAllCategories>>,
-  TError = unknown,
->(
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getAllCategories>>,
-        TError,
-        TData
-      >
-    > &
-      Pick<
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAllCategories<TData = Awaited<ReturnType<typeof getAllCategories>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCategories>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getAllCategories>>,
           TError,
           Awaited<ReturnType<typeof getAllCategories>>
-        >,
-        "initialData"
-      >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-export function useGetAllCategories<
-  TData = Awaited<ReturnType<typeof getAllCategories>>,
-  TError = unknown,
->(
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getAllCategories>>,
-        TError,
-        TData
-      >
-    >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAllCategories<TData = Awaited<ReturnType<typeof getAllCategories>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCategories>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useGetAllCategories<
-  TData = Awaited<ReturnType<typeof getAllCategories>>,
-  TError = unknown,
->(
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getAllCategories>>,
-        TError,
-        TData
-      >
-    >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetAllCategoriesQueryOptions(options);
+export function useGetAllCategories<TData = Awaited<ReturnType<typeof getAllCategories>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCategories>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const queryOptions = getGetAllCategoriesQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+
+
+
+
+
 
 export type getAllCategoriesTreeResponse200 = {
-  data: CategoryDto[];
-  status: 200;
-};
+  data: CategoryDto[]
+  status: 200
+}
 
-export type getAllCategoriesTreeResponseSuccess =
-  getAllCategoriesTreeResponse200 & {
-    headers: Headers;
-  };
-export type getAllCategoriesTreeResponse = getAllCategoriesTreeResponseSuccess;
+export type getAllCategoriesTreeResponseSuccess = (getAllCategoriesTreeResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getAllCategoriesTreeResponse = (getAllCategoriesTreeResponseSuccess)
 
 export const getGetAllCategoriesTreeUrl = () => {
-  return `/api/Categories/Tree`;
-};
 
-export const getAllCategoriesTree = async (
-  options?: RequestInit,
-): Promise<getAllCategoriesTreeResponse> => {
-  const res = await fetch(getGetAllCategoriesTreeUrl(), {
+
+
+
+  return `/api/Categories/Tree`
+}
+
+export const getAllCategoriesTree = async ( options?: RequestInit): Promise<getAllCategoriesTreeResponse> => {
+
+  const res = await fetch(getGetAllCategoriesTreeUrl(),
+  {
     ...options,
-    method: "GET",
-  });
+    method: 'GET'
+
+
+  }
+)
+
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: getAllCategoriesTreeResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as getAllCategoriesTreeResponse;
-};
+  const data: getAllCategoriesTreeResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as getAllCategoriesTreeResponse
+}
+
+
+
+
 
 export const getGetAllCategoriesTreeQueryKey = () => {
-  return [`/api/Categories/Tree`] as const;
-};
+    return [
+    `/api/Categories/Tree`
+    ] as const;
+    }
 
-export const getGetAllCategoriesTreeQueryOptions = <
-  TData = Awaited<ReturnType<typeof getAllCategoriesTree>>,
-  TError = unknown,
->(options?: {
-  query?: Partial<
-    UseQueryOptions<
-      Awaited<ReturnType<typeof getAllCategoriesTree>>,
-      TError,
-      TData
-    >
-  >;
-  fetch?: RequestInit;
-}) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getGetAllCategoriesTreeQueryKey();
+export const getGetAllCategoriesTreeQueryOptions = <TData = Awaited<ReturnType<typeof getAllCategoriesTree>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCategoriesTree>>, TError, TData>>, fetch?: RequestInit}
+) => {
 
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getAllCategoriesTree>>
-  > = ({ signal }) => getAllCategoriesTree({ signal, ...fetchOptions });
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof getAllCategoriesTree>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
-};
+  const queryKey =  queryOptions?.queryKey ?? getGetAllCategoriesTreeQueryKey();
 
-export type GetAllCategoriesTreeQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getAllCategoriesTree>>
->;
-export type GetAllCategoriesTreeQueryError = unknown;
 
-export function useGetAllCategoriesTree<
-  TData = Awaited<ReturnType<typeof getAllCategoriesTree>>,
-  TError = unknown,
->(
-  options: {
-    query: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getAllCategoriesTree>>,
-        TError,
-        TData
-      >
-    > &
-      Pick<
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAllCategoriesTree>>> = ({ signal }) => getAllCategoriesTree({ signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAllCategoriesTree>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetAllCategoriesTreeQueryResult = NonNullable<Awaited<ReturnType<typeof getAllCategoriesTree>>>
+export type GetAllCategoriesTreeQueryError = unknown
+
+
+export function useGetAllCategoriesTree<TData = Awaited<ReturnType<typeof getAllCategoriesTree>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCategoriesTree>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getAllCategoriesTree>>,
           TError,
           Awaited<ReturnType<typeof getAllCategoriesTree>>
-        >,
-        "initialData"
-      >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): DefinedUseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-export function useGetAllCategoriesTree<
-  TData = Awaited<ReturnType<typeof getAllCategoriesTree>>,
-  TError = unknown,
->(
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getAllCategoriesTree>>,
-        TError,
-        TData
-      >
-    > &
-      Pick<
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAllCategoriesTree<TData = Awaited<ReturnType<typeof getAllCategoriesTree>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCategoriesTree>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getAllCategoriesTree>>,
           TError,
           Awaited<ReturnType<typeof getAllCategoriesTree>>
-        >,
-        "initialData"
-      >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-export function useGetAllCategoriesTree<
-  TData = Awaited<ReturnType<typeof getAllCategoriesTree>>,
-  TError = unknown,
->(
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getAllCategoriesTree>>,
-        TError,
-        TData
-      >
-    >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAllCategoriesTree<TData = Awaited<ReturnType<typeof getAllCategoriesTree>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCategoriesTree>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useGetAllCategoriesTree<
-  TData = Awaited<ReturnType<typeof getAllCategoriesTree>>,
-  TError = unknown,
->(
-  options?: {
-    query?: Partial<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof getAllCategoriesTree>>,
-        TError,
-        TData
-      >
-    >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetAllCategoriesTreeQueryOptions(options);
+export function useGetAllCategoriesTree<TData = Awaited<ReturnType<typeof getAllCategoriesTree>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCategoriesTree>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const queryOptions = getGetAllCategoriesTreeQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
-export type getBookFileResponse200 = {
-  data: void;
-  status: 200;
-};
 
-export type getBookFileResponseSuccess = getBookFileResponse200 & {
+
+
+
+
+
+export type updateCategoryResponse200 = {
+  data: CategoryDto
+  status: 200
+}
+
+export type updateCategoryResponse400 = {
+  data: void
+  status: 400
+}
+
+export type updateCategoryResponse404 = {
+  data: void
+  status: 404
+}
+
+export type updateCategoryResponseSuccess = (updateCategoryResponse200) & {
   headers: Headers;
 };
-export type getBookFileResponse = getBookFileResponseSuccess;
-
-export const getGetBookFileUrl = (id: string) => {
-  return `/api/files/${id}`;
+export type updateCategoryResponseError = (updateCategoryResponse400 | updateCategoryResponse404) & {
+  headers: Headers;
 };
 
-export const getBookFile = async (
-  id: string,
-  options?: RequestInit,
-): Promise<getBookFileResponse> => {
-  const res = await fetch(getGetBookFileUrl(id), {
+export type updateCategoryResponse = (updateCategoryResponseSuccess | updateCategoryResponseError)
+
+export const getUpdateCategoryUrl = (id: string,) => {
+
+
+
+
+  return `/api/Categories/${id}`
+}
+
+export const updateCategory = async (id: string,
+    updateCategoryRequestDto: UpdateCategoryRequestDto, options?: RequestInit): Promise<updateCategoryResponse> => {
+
+  const res = await fetch(getUpdateCategoryUrl(id),
+  {
     ...options,
-    method: "GET",
-  });
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      updateCategoryRequestDto,)
+  }
+)
+
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: getBookFileResponse["data"] = body ? JSON.parse(body) : undefined;
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as getBookFileResponse;
+  const data: updateCategoryResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as updateCategoryResponse
+}
+
+
+
+
+export const getUpdateCategoryMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCategory>>, TError,{id: string;data: UpdateCategoryRequestDto}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof updateCategory>>, TError,{id: string;data: UpdateCategoryRequestDto}, TContext> => {
+
+const mutationKey = ['updateCategory'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateCategory>>, {id: string;data: UpdateCategoryRequestDto}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateCategory(id,data,fetchOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateCategoryMutationResult = NonNullable<Awaited<ReturnType<typeof updateCategory>>>
+    export type UpdateCategoryMutationBody = UpdateCategoryRequestDto
+    export type UpdateCategoryMutationError = void
+
+    export const useUpdateCategory = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCategory>>, TError,{id: string;data: UpdateCategoryRequestDto}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateCategory>>,
+        TError,
+        {id: string;data: UpdateCategoryRequestDto},
+        TContext
+      > => {
+      return useMutation(getUpdateCategoryMutationOptions(options), queryClient);
+    }
+
+export type deleteCategoryResponse200 = {
+  data: void
+  status: 200
+}
+
+export type deleteCategoryResponse400 = {
+  data: void
+  status: 400
+}
+
+export type deleteCategoryResponse404 = {
+  data: void
+  status: 404
+}
+
+export type deleteCategoryResponse409 = {
+  data: void
+  status: 409
+}
+
+export type deleteCategoryResponseSuccess = (deleteCategoryResponse200) & {
+  headers: Headers;
+};
+export type deleteCategoryResponseError = (deleteCategoryResponse400 | deleteCategoryResponse404 | deleteCategoryResponse409) & {
+  headers: Headers;
 };
 
-export const getGetBookFileQueryKey = (id: string) => {
-  return [`/api/files/${id}`] as const;
-};
+export type deleteCategoryResponse = (deleteCategoryResponseSuccess | deleteCategoryResponseError)
 
-export const getGetBookFileQueryOptions = <
-  TData = Awaited<ReturnType<typeof getBookFile>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getBookFile>>, TError, TData>
-    >;
-    fetch?: RequestInit;
-  },
+export const getDeleteCategoryUrl = (id: string,) => {
+
+
+
+
+  return `/api/Categories/${id}`
+}
+
+export const deleteCategory = async (id: string, options?: RequestInit): Promise<deleteCategoryResponse> => {
+
+  const res = await fetch(getDeleteCategoryUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: deleteCategoryResponse['data'] = body ? JSON.parse(body) : undefined
+  return { data, status: res.status, headers: res.headers } as deleteCategoryResponse
+}
+
+
+
+
+export const getDeleteCategoryMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCategory>>, TError,{id: string}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteCategory>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['deleteCategory'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteCategory>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteCategory(id,fetchOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteCategoryMutationResult = NonNullable<Awaited<ReturnType<typeof deleteCategory>>>
+
+    export type DeleteCategoryMutationError = void
+
+    export const useDeleteCategory = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCategory>>, TError,{id: string}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteCategory>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getDeleteCategoryMutationOptions(options), queryClient);
+    }
+
+export type getBookFileResponse200 = {
+  data: void
+  status: 200
+}
+
+export type getBookFileResponseSuccess = (getBookFileResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getBookFileResponse = (getBookFileResponseSuccess)
+
+export const getGetBookFileUrl = (id: string,) => {
+
+
+
+
+  return `/api/files/${id}`
+}
+
+export const getBookFile = async (id: string, options?: RequestInit): Promise<getBookFileResponse> => {
+
+  const res = await fetch(getGetBookFileUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getBookFileResponse['data'] = body ? JSON.parse(body) : undefined
+  return { data, status: res.status, headers: res.headers } as getBookFileResponse
+}
+
+
+
+
+
+export const getGetBookFileQueryKey = (id: string,) => {
+    return [
+    `/api/files/${id}`
+    ] as const;
+    }
+
+
+export const getGetBookFileQueryOptions = <TData = Awaited<ReturnType<typeof getBookFile>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBookFile>>, TError, TData>>, fetch?: RequestInit}
 ) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getGetBookFileQueryKey(id);
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof getBookFile>>> = ({
-    signal,
-  }) => getBookFile(id, { signal, ...fetchOptions });
+  const queryKey =  queryOptions?.queryKey ?? getGetBookFileQueryKey(id);
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof getBookFile>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
-};
 
-export type GetBookFileQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getBookFile>>
->;
-export type GetBookFileQueryError = unknown;
 
-export function useGetBookFile<
-  TData = Awaited<ReturnType<typeof getBookFile>>,
-  TError = unknown,
->(
-  id: string,
-  options: {
-    query: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getBookFile>>, TError, TData>
-    > &
-      Pick<
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getBookFile>>> = ({ signal }) => getBookFile(id, { signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getBookFile>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetBookFileQueryResult = NonNullable<Awaited<ReturnType<typeof getBookFile>>>
+export type GetBookFileQueryError = unknown
+
+
+export function useGetBookFile<TData = Awaited<ReturnType<typeof getBookFile>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBookFile>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getBookFile>>,
           TError,
           Awaited<ReturnType<typeof getBookFile>>
-        >,
-        "initialData"
-      >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): DefinedUseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-export function useGetBookFile<
-  TData = Awaited<ReturnType<typeof getBookFile>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getBookFile>>, TError, TData>
-    > &
-      Pick<
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetBookFile<TData = Awaited<ReturnType<typeof getBookFile>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBookFile>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getBookFile>>,
           TError,
           Awaited<ReturnType<typeof getBookFile>>
-        >,
-        "initialData"
-      >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-export function useGetBookFile<
-  TData = Awaited<ReturnType<typeof getBookFile>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getBookFile>>, TError, TData>
-    >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetBookFile<TData = Awaited<ReturnType<typeof getBookFile>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBookFile>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useGetBookFile<
-  TData = Awaited<ReturnType<typeof getBookFile>>,
-  TError = unknown,
->(
-  id: string,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof getBookFile>>, TError, TData>
-    >;
-    fetch?: RequestInit;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getGetBookFileQueryOptions(id, options);
+export function useGetBookFile<TData = Awaited<ReturnType<typeof getBookFile>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getBookFile>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const queryOptions = getGetBookFileQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
