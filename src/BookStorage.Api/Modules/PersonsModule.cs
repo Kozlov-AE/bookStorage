@@ -12,9 +12,9 @@ public static class PersonsModule
       var group = app.MapGroup("/api/Persons").WithTags("Persons");
       group.MapPost("/", CreatePerson);
       group.MapGet("/", GetAllPersons)
-          .Produces<IEnumerable<PersonDto>>(200);
+          .Produces<IEnumerable<PersonDto>>();
       group.MapGet("/search", SearchPersons)
-          .Produces<IEnumerable<PersonDto>>(200);
+          .Produces<IEnumerable<PersonDto>>();
    }
 
 private static async Task<IResult> CreatePerson([FromBody] PersonDto request, IPersonService ps, IMapper mapper, CancellationToken ct)

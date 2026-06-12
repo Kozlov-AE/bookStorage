@@ -4,9 +4,6 @@ using BookStorage.Core.Entities;
 
 namespace BookStorage.Api.Mapping.MapsterProfiles;
 
-/// <summary>
-/// Основной Mapster профиль для всех сущностей приложения
-/// </summary>
 public class MappingProfile : IRegister
 {
     public void Register(TypeAdapterConfig config)
@@ -97,10 +94,9 @@ public class MappingProfile : IRegister
         config.NewConfig<CreateBookRequestDto, Book>()
             .ConstructUsing(src => new Book { Title = src.Title })
             .Ignore(dest => dest.Id)
-            .Map(dest => dest.Description, src => src.Description)
             .Map(dest => dest.CategoryId, src => src.Category != null ? src.Category.Id.ToNullableGuid() : null)
             .Map(dest => dest.Authors, src => src.Authors != null ? src.Authors.Adapt<IEnumerable<Person>>() : new List<Person>(0))
-            .AfterMapping((src, dest) => {
+            .AfterMapping((dest) => {
                 dest.CreatedAt = DateTime.UtcNow;
             });
     }

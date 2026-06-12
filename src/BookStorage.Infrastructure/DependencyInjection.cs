@@ -39,9 +39,9 @@ public static class DependencyInjection
         if (dbOptions.Value.Provider.Equals("sqlite", StringComparison.OrdinalIgnoreCase))
         {
             var builder = new DbConnectionStringBuilder { ConnectionString = dbOptions.Value.ConnectionString };
-            var dataSource = builder["Data Source"]?.ToString();
-            if (!string.IsNullOrEmpty(dataSource))
+            if (builder.ContainsKey("Data Source"))
             {
+                var dataSource = builder["Data Source"].ToString();
                 var dir = Path.GetDirectoryName(dataSource);
                 if (!string.IsNullOrEmpty(dir))
                     Directory.CreateDirectory(dir);

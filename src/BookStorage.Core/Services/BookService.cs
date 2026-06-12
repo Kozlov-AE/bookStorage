@@ -23,8 +23,9 @@ public class BookService : IBookService
     {
         _logger.LogDebug("Getting all books");
         var books = await _uow.Books.GetAllAsync(ct);
-        _logger.LogInformation("Retrieved {BooksCount} books", books.Count());
-        return books;
+        var bookList = books.ToList();
+        _logger.LogInformation("Retrieved {BooksCount} books", bookList.Count);
+        return bookList;
     }
 
     public async Task<Book?> GetByIdAsync(Guid id, CancellationToken ct = default)
@@ -44,36 +45,35 @@ public class BookService : IBookService
         _logger.LogInformation(
             "Creating book: {BookTitle} with {AuthorsCount} authors",
             book.Title,
-            book.Authors?.Count ?? 0);
+            book.Authors.Count);
         try
         {
             await _uow.BeginTransactionAsync(ct);
             _logger.LogDebug("Transaction started for book creation: {BookTitle}", book.Title);
 
-            if (book.Authors != null)
+
+            var newAuthors = await _uow.Persons.AddAsync(book.Authors.Where(a => a.Id == Guid.Empty), ct);
+            var newAuthorsList = newAuthors.ToList();
+            _logger.LogDebug(
+                "Added {NewAuthorsCount} new authors for book: {BookTitle}",
+                newAuthorsList.Count,
+                book.Title);
+
+            book.Authors = book.Authors.Select(x =>
             {
-                var newAuthors = await _uow.Persons.AddAsync(book.Authors.Where(a => a.Id == Guid.Empty), ct);
-                _logger.LogDebug(
-                    "Added {NewAuthorsCount} new authors for book: {BookTitle}",
-                    newAuthors.Count(),
-                    book.Title);
-
-                book.Authors = book.Authors.Select(x =>
+                if (x.Id == Guid.Empty)
                 {
-                    if (x.Id == Guid.Empty)
+                    var author = newAuthorsList.FirstOrDefault(a => a.FullName.Equals(
+                        x.FullName,
+                        StringComparison.InvariantCultureIgnoreCase));
+                    if (author != null)
                     {
-                        var author = newAuthors.FirstOrDefault(a => a.FullName.Equals(
-                            x.FullName,
-                            StringComparison.InvariantCultureIgnoreCase));
-                        if (author != null)
-                        {
-                            x.Id = author.Id;
-                        }
+                        x.Id = author.Id;
                     }
+                }
 
-                    return x;
-                }).ToList();
-            }
+                return x;
+            }).ToList();
 
             Category? existingCat = null;
             if (book.CategoryId.HasValue && book.CategoryId != Guid.Empty)
@@ -88,10 +88,10 @@ public class BookService : IBookService
             }
 
             if (existingCat is null && book.Category != null)
-            { 
+            {
                 await _uow.Categories.AddAsync(book.Category, ct);
             }
-            
+
             book.Category = null;
 
             var file = await _fs.SaveBookAsync(fileStream, fileType, book, ct);

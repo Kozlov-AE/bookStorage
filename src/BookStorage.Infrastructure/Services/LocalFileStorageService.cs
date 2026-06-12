@@ -2,7 +2,6 @@
 using BookStorage.Core.Interfaces.Infrastructure;
 using BookStorage.Core.Interfaces.Persistence;
 using BookStorage.Infrastructure.Configuration;
-using BookStorage.Infrastructure.Persistence;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -21,18 +20,13 @@ public class LocalFileStorageService : IFileStorageService
         _logger = logger;
     }
 
-    private string GetStoragePath()
-    {
-        return _options.BooksPath;
-    }
-
-    public async Task<BookFile> SaveBookAsync(Stream fileStream, string FileType, Book book,
+    public async Task<BookFile> SaveBookAsync(Stream fileStream, string fileType, Book book,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Saving book file: {BookTitle}, FileType: {FileType}", book.Title, FileType);
+        _logger.LogInformation("Saving book file: {BookTitle}, FileType: {FileType}", book.Title, fileType);
         var categoryPath = await GetCategoryPathAsync(book.CategoryId, cancellationToken);
         var safeFileName = GetSafeFileName(book.Title);
-        var relativePath = BuildRelativePath(categoryPath, safeFileName + "." + FileType);
+        var relativePath = BuildRelativePath(categoryPath, safeFileName + "." + fileType);
         var fullPath = Path.Combine(_options.BooksPath, relativePath);
 
         var directory = Path.GetDirectoryName(fullPath);
@@ -52,7 +46,7 @@ public class LocalFileStorageService : IFileStorageService
         {
             Id = Guid.CreateVersion7(),
             FileName = safeFileName,
-            FileType = FileType,
+            FileType = fileType,
             FullFilePath = relativePath,
             FileSizeBytes = fileInfo.Length,
             UploadedAt = DateTime.UtcNow,
@@ -116,9 +110,8 @@ public class LocalFileStorageService : IFileStorageService
     {
         _logger.LogDebug("Getting list of all books from storage");
         var files = Directory.GetFiles(_options.BooksPath, "*", SearchOption.AllDirectories)
-            .Select(f => GetRelativePath(f))
-            .Where(f => f != null)
-            .Cast<string>();
+            .Select(GetRelativePath)
+            .Where(f => !string.IsNullOrEmpty(f));
         var fileList = files.ToList();
         _logger.LogInformation("Retrieved {BooksCount} book files from storage", fileList.Count);
 

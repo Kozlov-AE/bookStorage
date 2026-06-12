@@ -1,5 +1,4 @@
 ﻿using AutoFixture;
-using AutoFixture.Xunit3;
 using BookStorage.Api.DTOs;
 using BookStorage.Core.Entities;
 using MapsterMapper;
@@ -10,14 +9,13 @@ namespace BookStorage.Aplication.UnitTests.MappingTests;
 public class CategoryMappingTests
 {
     private readonly Mapper _mapper;
-    private readonly Fixture _fixture;
 
     public CategoryMappingTests()
     {
         _mapper = MapsterTestHelper.GetMapperForTests();
-        _fixture = new Fixture();
-        _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
-        _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+        var fixture = new Fixture();
+        fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
+        fixture.Behaviors.Add(new OmitOnRecursionBehavior());
     }
 
     private Category CreateSampleCategory(Guid? id = null, string? name = null, Guid? parentCategoryId = null)
@@ -105,7 +103,7 @@ public class CategoryMappingTests
 
         // Assert
         Assert.NotNull(categoryDto);
-        Assert.Null(categoryDto.Id); // Guid.Empty конвертируется в null в CategoryDto
+        Assert.Null(categoryDto.Id);
     }
 
     [Fact]
@@ -186,12 +184,68 @@ public class CategoryMappingTests
         // Act
         var categoryDto = _mapper.Map<Category, CategoryDto>(srcCategory);
 
-        // Assert - проверяем, что используется ConstructUsing из профиля
+        // Assert
         Assert.NotNull(categoryDto);
         Assert.Equal(srcCategory.Id.ToString(), categoryDto.Id);
         Assert.Equal(srcCategory.Name, categoryDto.Name);
         Assert.Equal(srcCategory.ParentCategoryId?.ToString(), categoryDto.ParentCategoryId);
-        Assert.Null(categoryDto.SubCategories); // ConstructUsing устанавливает null для SubCategories
+        Assert.Null(categoryDto.SubCategories);
+    }
+
+    [Fact]
+    public void Map_Category_To_CategoryDto_With_SubCategories_Maps_Recursively()
+    {
+        // Arrange
+        var childId1 = Guid.CreateVersion7();
+        var childId2 = Guid.CreateVersion7();
+        var parentId = Guid.CreateVersion7();
+
+        var child1 = new Category
+        {
+            Id = childId1,
+            Name = "Science Fiction",
+            ParentCategoryId = parentId,
+            SubCategories = new List<Category>()
+        };
+        var child2 = new Category
+        {
+            Id = childId2,
+            Name = "Fantasy",
+            ParentCategoryId = parentId,
+            SubCategories = new List<Category>()
+        };
+
+        var parent = new Category
+        {
+            Id = parentId,
+            Name = "Fiction",
+            ParentCategoryId = null,
+            SubCategories = new List<Category> { child1, child2 }
+        };
+
+        // Act
+        var parentDto = _mapper.Map<Category, CategoryDto>(parent);
+
+        // Assert
+        Assert.NotNull(parentDto);
+        Assert.Equal(parentId.ToString(), parentDto.Id);
+        Assert.Equal("Fiction", parentDto.Name);
+        Assert.Null(parentDto.ParentCategoryId);
+
+        Assert.NotNull(parentDto.SubCategories);
+        Assert.Equal(2, parentDto.SubCategories.Count());
+
+        var childDto1 = parentDto.SubCategories.First(s => s.Name == "Science Fiction");
+        Assert.Equal(childId1.ToString(), childDto1.Id);
+        Assert.Equal(parentId.ToString(), childDto1.ParentCategoryId);
+        Assert.NotNull(childDto1.SubCategories);
+        Assert.Empty(childDto1.SubCategories);
+
+        var childDto2 = parentDto.SubCategories.First(s => s.Name == "Fantasy");
+        Assert.Equal(childId2.ToString(), childDto2.Id);
+        Assert.Equal(parentId.ToString(), childDto2.ParentCategoryId);
+        Assert.NotNull(childDto2.SubCategories);
+        Assert.Empty(childDto2.SubCategories);
     }
 
     [Fact]
@@ -208,7 +262,7 @@ public class CategoryMappingTests
         Assert.NotNull(category);
         Assert.Equal("New Category", category.Name);
         Assert.Equal(parentId, category.ParentCategoryId);
-        Assert.Equal(Guid.Empty, category.Id); // Id должен игнорироваться
+        Assert.Equal(Guid.Empty, category.Id);
     }
 
     [Fact]
@@ -236,7 +290,7 @@ public class CategoryMappingTests
         // Act
         var category = _mapper.Map<CreateCategoryRequestDto, Category>(requestDto);
 
-        // Assert - проверяем, что конструктор не использует Id (должен быть Guid.Empty)
+        // Assert
         Assert.Equal(Guid.Empty, category.Id);
     }
 
@@ -254,7 +308,7 @@ public class CategoryMappingTests
         Assert.NotNull(category);
         Assert.Equal("Updated Category", category.Name);
         Assert.Equal(parentId, category.ParentCategoryId);
-        Assert.Equal(Guid.Empty, category.Id); // Id должен игнорироваться
+        Assert.Equal(Guid.Empty, category.Id);
     }
 
     [Fact]
@@ -291,7 +345,7 @@ public class CategoryMappingTests
         // Assert
         Assert.NotNull(category);
         Assert.Equal(name, category.Name);
-        Assert.Null(category.ParentCategoryId); // не установлено
+        Assert.Null(category.ParentCategoryId);
         Assert.Equal(Guid.Empty, category.Id);
     }
 
@@ -302,21 +356,16 @@ public class CategoryMappingTests
         var requestDto = CreateSampleUpdateCategoryRequestDto("Test", "invalid-guid");
 
         // Act
-        // Note: Этот тест может вызвать исключение при парсинге невалидного GUID
         try
         {
             var category = _mapper.Map<UpdateCategoryRequestDto, Category>(requestDto);
             
-            // Если маппинг прошел успешно, проверяем результаты
             Assert.NotNull(category);
             Assert.Equal("invalid-guid", requestDto.ParentCategoryId);
             
-            // GUID может быть Guid.Empty при ошибке парсинга
-            // Это поведение зависит от реализации ToNullableGuid()
         }
         catch (Exception ex)
         {
-            // Если исключение ожидается при невалидном GUID, это корректное поведение
             Assert.NotNull(ex);
         }
     }
@@ -330,10 +379,10 @@ public class CategoryMappingTests
         // Act
         var category = _mapper.Map<CreateCategoryRequestDto, Category>(requestDto);
 
-        // Assert - проверяем, что_IGNORE_ настройка работает только для Id
-        Assert.NotEqual(Guid.CreateVersion7().ToString(), requestDto.Name); // Name должен маппиться
-        Assert.NotEqual(Guid.CreateVersion7().ToString(), requestDto.ParentCategoryId); // ParentCategoryId должен маппиться
-        Assert.Equal(Guid.Empty, category.Id); // Id должен быть проигнорирован
+        // Assert
+        Assert.NotEqual(Guid.CreateVersion7().ToString(), requestDto.Name);
+        Assert.NotEqual(Guid.CreateVersion7().ToString(), requestDto.ParentCategoryId);
+        Assert.Equal(Guid.Empty, category.Id);
     }
 
     [Fact]
@@ -345,9 +394,9 @@ public class CategoryMappingTests
         // Act
         var category = _mapper.Map<UpdateCategoryRequestDto, Category>(requestDto);
 
-        // Assert - проверяем, что Ignore настройка работает только для Id
-        Assert.Equal("Test Category", category.Name); // Name должен маппиться
-        Assert.Null(category.ParentCategoryId); // ParentCategoryId должен маппиться как null
-        Assert.Equal(Guid.Empty, category.Id); // Id должен быть проигнорирован
+        // Assert
+        Assert.Equal("Test Category", category.Name);
+        Assert.Null(category.ParentCategoryId);
+        Assert.Equal(Guid.Empty, category.Id);
     }
 }

@@ -13,10 +13,8 @@ public class BookListItemDto: BaseBookDto{
     public string? CategoryId { get; set; }
 }
 
-public class BookDto 
+public class BookDto : BaseBookDto 
 {
-    public Guid Id {get; set;} = Guid.Empty;
-    public string Title {get; set;} = String.Empty;
     public string? Description {get; set;}
     public string? CategoryId {get; set;}
     public CategoryDto? Category {get; set;}

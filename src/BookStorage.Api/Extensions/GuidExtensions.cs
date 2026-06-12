@@ -1,11 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-
-namespace BookStorage.Api.Extensions;
+﻿namespace BookStorage.Api.Extensions;
 
 public static class GuidExtensions
 {
     /// <summary>
-    /// Конвертирует string в Guid, возвращает Guid.Empty если null или пусто
+    /// Converts string to Guid, returns Guid.Empty if null or empty
     /// </summary>
     public static Guid ToGuid(this string? value)
     {

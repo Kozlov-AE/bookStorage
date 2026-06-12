@@ -20,8 +20,9 @@ public class PersonService : IPersonService
     {
         _logger.LogDebug("Getting all persons");
         var persons = await _uow.Persons.GetAllAsync(ct);
-        _logger.LogInformation("Retrieved {PersonsCount} persons", persons.Count());
-        return persons;
+        var personList = persons.ToList();
+        _logger.LogInformation("Retrieved {PersonsCount} persons", personList.Count);
+        return personList;
     }
 
     public async Task<Person?> GetByIdAsync(Guid id, CancellationToken ct = default)
@@ -39,8 +40,8 @@ public class PersonService : IPersonService
     {
         _logger.LogInformation("Creating person: {PersonFullName}", person.FullName);
         Person? pers;
-        var existingPersons = (await _uow.Persons.GetByName(person.FullName, ct)).ToArray();
-        if (existingPersons.Length > 0)
+        var existingPersons = await _uow.Persons.GetByName(person.FullName, ct);
+        if (existingPersons.Any())
         {
             if (person.Birthday.HasValue)
             {
@@ -125,9 +126,10 @@ public class PersonService : IPersonService
             return Enumerable.Empty<Person>();
 
         _logger.LogDebug("Searching persons with pattern: {SearchPattern}", search);
-        var persons = (await _uow.Persons.SearchByName(search, ct)).ToList();
-        _logger.LogInformation("Found {PersonsCount} persons matching pattern: {SearchPattern}", persons.Count(), search);
-        return persons;
+        var persons = await _uow.Persons.SearchByName(search, ct);
+        var personList = persons.ToList();
+        _logger.LogInformation("Found {PersonsCount} persons matching pattern: {SearchPattern}", personList.Count, search);
+        return personList;
     }
 
     public async Task<bool> DeleteAsync(Guid id, CancellationToken ct = default)

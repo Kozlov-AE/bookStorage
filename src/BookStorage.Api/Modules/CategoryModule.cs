@@ -14,6 +14,7 @@ public static class CategoryModule
         group.MapPost("/", CreateCategory)
             .WithName("CreateCategory")
             .Produces<CategoryDto>()
+            .Produces(409)
             .Produces(400);
         group.MapGet("/", GetAllCategories)
             .WithName("GetAllCategories")
@@ -29,8 +30,8 @@ public static class CategoryModule
         group.MapDelete("/{id:guid}", DeleteCategory)
             .WithName("DeleteCategory")
             .Produces(200)
-            .Produces(409)
-            .Produces(500);
+            .Produces(404)
+            .Produces(409);
     }
 
     private static async Task<IResult> GetAllCategories(ICategoryService cs, IMapper mapper, CancellationToken ct = default)
@@ -51,49 +52,48 @@ public static class CategoryModule
     {
         var category = mapper.Map<CreateCategoryRequestDto, Category>(requestDto);
         var result = await cs.CreateAsync(category, ct);
-        if (result != null)
+        if (result.IsSuccess)
         {
-            return Results.Ok(mapper.Map<Category, CategoryDto>(result));
+            return Results.Ok(mapper.Map<Category, CategoryDto>(result.Value!));
         }
-
-        return Results.BadRequest("Failed to create category");
+        
+        return result.ResultCode switch
+        {
+            ResultCodes.CategorySameName => Results.Conflict(result.Error),
+            _ => Results.BadRequest("Failed to create category")
+        };
     }
 
     private static async Task<IResult> UpdateCategory(Guid id, [FromBody] UpdateCategoryRequestDto requestDto, ICategoryService cs, IMapper mapper, CancellationToken ct = default)
     {
         var category = mapper.Map<UpdateCategoryRequestDto, Category>(requestDto);
         var result = await cs.UpdateAsync(id, category, ct);
-        switch (result.ResultCode)
+        if (result.IsSuccess)
         {
-            case ResultCodes.Success:
-                return result.Value == null
-                    ? Results.BadRequest()
-                    : Results.Ok(mapper.Map<Category, CategoryDto>(result.Value));
-            case ResultCodes.NotFound:
-                return Results.NotFound();
-            case ResultCodes.CategorySameName:
-            case ResultCodes.InvalidInput:
-                return Results.Conflict(result.Error);
-            case ResultCodes.InnerError:
-            default:
-                return Results.InternalServerError("Inner error: Failed to update category");
+            return Results.Ok(mapper.Map<Category, CategoryDto>(result.Value!));
         }
+
+        return result.ResultCode switch
+        {
+            ResultCodes.CategorySameName => Results.Conflict(result.Error),
+            ResultCodes.NotFound => Results.NotFound(),
+            _ => Results.BadRequest("Failed to update category")
+        };
     }
 
     private static async Task<IResult> DeleteCategory(Guid id, ICategoryService cs, CancellationToken ct = default)
     {
         var result = await cs.DeleteAsync(id, ct);
-        switch (result.ResultCode)
+        if (result.IsSuccess)
         {
-            case ResultCodes.Success:
-                return Results.Ok();
-            case ResultCodes.NotFound:
-                return Results.NotFound();
-            case ResultCodes.CategoryRemovingNoAllowedBySubCategories:
-                return Results.Conflict(result.Error);
-            case ResultCodes.InnerError:
-            default:
-                return Results.BadRequest("Inner error: Failed to delete category");
+            return Results.Ok();
         }
+
+        return result.ResultCode switch
+        {
+            ResultCodes.CategoryRemovingNoAllowedBySubCategories => Results.Conflict(result.Error),
+            ResultCodes.NotFound => Results.NotFound(),
+            _ => Results.BadRequest("Failed to delete category")
+        };
     }
 }

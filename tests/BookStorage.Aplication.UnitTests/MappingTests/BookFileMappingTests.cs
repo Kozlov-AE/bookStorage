@@ -1,5 +1,4 @@
 ﻿using AutoFixture;
-using AutoFixture.Xunit3;
 using BookStorage.Api.DTOs;
 using BookStorage.Core.Entities;
 using MapsterMapper;
@@ -10,14 +9,13 @@ namespace BookStorage.Aplication.UnitTests.MappingTests;
 public class BookFileMappingTests
 {
     private readonly Mapper _mapper;
-    private readonly Fixture _fixture;
 
     public BookFileMappingTests()
     {
         _mapper = MapsterTestHelper.GetMapperForTests();
-        _fixture = new Fixture();
-        _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
-        _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+        var fixture = new Fixture();
+        fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
+        fixture.Behaviors.Add(new OmitOnRecursionBehavior());
     }
 
     private BookFile CreateSampleBookFile(
@@ -38,14 +36,16 @@ public class BookFileMappingTests
     }
 
     [Fact]
-    public void Map_BookFile_To_BookFileDto_Should_Ok()
+    public void Map_BookFile_To_BookFileDto_All_Fields_Mapped_Correctly()
     {
         // Arrange
+        var uploadTime = new DateTime(2025, 6, 15, 10, 30, 0, DateTimeKind.Utc);
         var file = CreateSampleBookFile(
             id: Guid.CreateVersion7(),
             fileName: "book.pdf",
             fileSizeBytes: 2048000,
-            uploadedAt: DateTime.Now
+            uploadedAt: uploadTime,
+            fileType: "application/pdf"
         );
 
         // Act
@@ -54,8 +54,10 @@ public class BookFileMappingTests
         // Assert
         Assert.NotNull(fileDto);
         Assert.Equal(file.Id.ToString(), fileDto.Id);
-        // Примечание: в профиле BookFileToBookFileDto маппятся только Id, другие поля через Mapster defaults
-        // Но проверим результаты маппинга из тестовых данных
+        Assert.Equal("book.pdf", fileDto.FileName);
+        Assert.Equal(2048000, fileDto.FileSizeBytes);
+        Assert.Equal(uploadTime, fileDto.UploadedAt);
+        Assert.Equal("application/pdf", fileDto.FileType);
     }
 
     [Fact]
@@ -69,16 +71,17 @@ public class BookFileMappingTests
 
         // Assert
         Assert.NotNull(fileDto);
-        Assert.Null(fileDto.Id); // Guid.Empty может конвертироваться в null
+        Assert.Null(fileDto.Id);
+        Assert.NotNull(fileDto.FileName);
     }
 
     [Fact]
-    public void Map_BookFile_To_BookFileDto_With_Null_Properties_Should_Ok()
+    public void Map_BookFile_To_BookFileDto_With_Null_FileType_Should_Ok()
     {
-        // Arrange
+        // Arrange — fileName is required, but fileType can be null
         var file = CreateSampleBookFile(
             id: Guid.CreateVersion7(),
-            fileName: null,
+            fileName: "test.pdf",
             fileType: null
         );
 
@@ -88,6 +91,8 @@ public class BookFileMappingTests
         // Assert
         Assert.NotNull(fileDto);
         Assert.NotNull(fileDto.Id);
+        Assert.Equal("test.pdf", fileDto.FileName);
+        Assert.Null(fileDto.FileType);
     }
 
     [Theory]
@@ -107,14 +112,14 @@ public class BookFileMappingTests
 
         // Assert
         Assert.NotNull(fileDto);
-        Assert.NotNull(fileDto.Id);
+        Assert.Equal(fileName, fileDto.FileName);
     }
 
     [Fact]
     public void Map_BookFile_To_BookFileDto_With_Various_File_Sizes_Should_Ok()
     {
         // Arrange
-        var fileSizes = new long[] { 0, 1024, 1024000, 10485760, 1073741824 }; // от 0 до 1GB
+        var fileSizes = new long[] { 0, 1024, 1024000, 10485760, 1073741824 };
 
         foreach (var fileSize in fileSizes)
         {
@@ -125,7 +130,7 @@ public class BookFileMappingTests
 
             // Assert
             Assert.NotNull(fileDto);
-            Assert.NotNull(fileDto.Id);
+            Assert.Equal(fileSize, fileDto.FileSizeBytes);
         }
     }
 }

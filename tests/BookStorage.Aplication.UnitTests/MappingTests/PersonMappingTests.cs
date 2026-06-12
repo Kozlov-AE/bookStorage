@@ -1,5 +1,4 @@
 ﻿using AutoFixture;
-using AutoFixture.Xunit3;
 using BookStorage.Api.DTOs;
 using BookStorage.Core.Entities;
 using MapsterMapper;
@@ -20,7 +19,7 @@ namespace BookStorage.Aplication.UnitTests.MappingTests
             _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
             _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
             
-            // Настройка для корректного создания DateOnly
+            // Customization for DateOnly creation
             _fixture.Customize<DateOnly>(composer => composer.FromFactory<DateTime>(date => DateOnly.FromDateTime(date)));
         }
 
@@ -143,7 +142,7 @@ namespace BookStorage.Aplication.UnitTests.MappingTests
             // Act
             var personDto = _mapper.Map<Person, PersonDto>(srcPerson);
 
-            // Assert - проверяем, что используется ConstructUsing, а не просто копирование свойств
+            // Assert - verify ConstructUsing is used
             Assert.NotNull(personDto);
             Assert.Equal(srcPerson.Id.ToString(), personDto.Id);
             Assert.Equal(srcPerson.FullName, personDto.FullName);

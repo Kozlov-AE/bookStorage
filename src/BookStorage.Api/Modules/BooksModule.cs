@@ -13,18 +13,18 @@ public static class BooksModule
 
         group.MapGet("/", GetBooks)
             .WithName("GetBooks")
-            .Produces<IEnumerable<BookListItemDto>>(200);
+            .Produces<IEnumerable<BookListItemDto>>();
 
         group.MapGet("/{id:guid}", GetBook)
             .WithName("GetBook")
-            .Produces<BookDto>(200)
+            .Produces<BookDto>()
             .Produces(404);
 
         group.MapPost("/", CreateBook)
             .DisableAntiforgery()
             .WithName("CreateBook")
             .Accepts<CreateBookRequestDto>("multipart/form-data")
-            .Produces<CreateBookResponseDto>(200)
+            .Produces<CreateBookResponseDto>()
             .Produces(400);
     }
 
@@ -67,7 +67,7 @@ public static class BooksModule
     {
         var newBook = mapper.Map<CreateBookRequestDto, Book>(request);
 
-        var fileType = Path.GetExtension(request.File.FileName)?.TrimStart('.') ?? "";
+        var fileType = Path.GetExtension(request.File.FileName).TrimStart('.');
         if (string.IsNullOrEmpty(fileType))
         {
             return Results.BadRequest("File must have an extension");

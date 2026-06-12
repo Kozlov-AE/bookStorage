@@ -1,5 +1,4 @@
 ﻿using AutoFixture;
-using AutoFixture.Xunit3;
 using BookStorage.Api.DTOs;
 using BookStorage.Core.Entities;
 using MapsterMapper;
@@ -29,16 +28,20 @@ public class BookMappingTests
         string? title = null, 
         string? description = null,
         Category? category = null,
+        Guid? categoryId = null,
         List<Person>? authors = null,
-        List<BookFile>? files = null)
+        List<BookFile>? files = null,
+        DateTime? updatedAt = null)
     {
         var book = _fixture.Create<Book>();
         book.Id = id ?? book.Id;
         book.Title = title ?? book.Title;
         book.Description = description ?? book.Description;
         book.Category = category ?? book.Category;
+        book.CategoryId = categoryId ?? book.CategoryId;
         book.Authors = authors ?? book.Authors;
         book.Files = files ?? book.Files;
+        book.UpdatedAt = updatedAt;
         
         return book;
     }
@@ -93,6 +96,7 @@ public class BookMappingTests
             title: "The Test Book",
             description: "A test book for testing",
             category: category,
+            categoryId: categoryId,
             authors: authors,
             files: files
         );
@@ -102,7 +106,7 @@ public class BookMappingTests
 
         // Assert
         Assert.NotNull(bookDto);
-        Assert.Equal(bookId, bookDto.Id);
+        Assert.Equal(bookId.ToString(), bookDto.Id);
         Assert.Equal("The Test Book", bookDto.Title);
         Assert.Equal("A test book for testing", bookDto.Description);
 
@@ -118,6 +122,11 @@ public class BookMappingTests
         Assert.NotNull(bookDto.Files);
         Assert.Single(bookDto.Files);
         Assert.Equal(bookFile.FileName, bookDto.Files.First().FileName);
+
+       
+        Assert.Equal(categoryId.ToString(), bookDto.CategoryId);
+
+        Assert.Null(bookDto.UpdatedAt);
     }
 
     [Fact]
@@ -143,7 +152,7 @@ public class BookMappingTests
     [Fact]
     public void Map_CreateBookRequestDto_To_Book_Should_Ok()
     {
-        // Arrange - Создаем мок IFormFile
+       
         var fileMock = new Mock<IFormFile>();
         fileMock.Setup(f => f.Length).Returns(1024);
         fileMock.Setup(f => f.ContentType).Returns("application/pdf");
@@ -273,7 +282,22 @@ public class BookMappingTests
     }
 
     [Fact]
-    public void Map_Book_Empty_Id_To_BookDto_Should_Ok()
+    public void Map_Book_To_BookDto_With_UpdatedAt_Should_Map()
+    {
+        // Arrange
+        var updateTime = new DateTime(2025, 12, 1, 14, 30, 0, DateTimeKind.Utc);
+        var book = CreateSampleBook(updatedAt: updateTime);
+
+        // Act
+        var bookDto = _mapper.Map<Book, BookDto>(book);
+
+        // Assert
+        Assert.NotNull(bookDto);
+        Assert.Equal(updateTime, bookDto.UpdatedAt);
+    }
+
+    [Fact]
+    public void Map_Book_To_BookDto_Empty_Id_Should_Null_Id()
     {
         // Arrange
         var book = CreateSampleBook(id: Guid.Empty);
@@ -283,7 +307,7 @@ public class BookMappingTests
 
         // Assert
         Assert.NotNull(bookDto);
-        Assert.Equal(Guid.Empty, bookDto.Id);
+        Assert.Null(bookDto.Id);
     }
 
     [Fact]
@@ -299,6 +323,22 @@ public class BookMappingTests
         Assert.Equal(book.Id.ToString(), bookListItemDto.Id);
         Assert.Equal(book.Title, bookListItemDto.Title);
         Assert.Equal(book.CategoryId.ToString(), bookListItemDto.CategoryId);
+    }
+
+    [Fact]
+    public void Map_Book_To_BookListItemDto_Empty_Id_Should_Null_Id()
+    {
+        // Arrange
+        var book = CreateSampleBook(id: Guid.Empty);
+        book.CategoryId = null;
+
+        // Act
+        var bookListItemDto = _mapper.Map<Book, BookListItemDto>(book);
+
+        // Assert
+        Assert.NotNull(bookListItemDto);
+        Assert.Null(bookListItemDto.Id);
+        Assert.Null(bookListItemDto.CategoryId);
     }
 
     [Fact]

@@ -20,8 +20,9 @@ public class CategoryService : ICategoryService
     {
         _logger.LogDebug("Getting all categories");
         var categories = await _uow.Categories.GetAllAsync(ct);
-        _logger.LogInformation("Retrieved {CategoriesCount} categories", categories.Count());
-        return categories;
+        var categoryList = categories.ToList();
+        _logger.LogInformation("Retrieved {CategoriesCount} categories", categoryList.Count);
+        return categoryList;
     }
 
     public async Task<Category?> GetByIdAsync(Guid id, CancellationToken ct = default)
@@ -32,6 +33,7 @@ public class CategoryService : ICategoryService
         {
             _logger.LogWarning("Category with ID {CategoryId} not found", id);
         }
+
         return category;
     }
 
@@ -39,28 +41,28 @@ public class CategoryService : ICategoryService
     {
         _logger.LogDebug("Getting categories by name: {CategoryName}", name);
         var categories = await _uow.Categories.GetByName(name, ct);
-        _logger.LogInformation("Found {CategoriesCount} categories with name: {CategoryName}", categories.Count(), name);
+        _logger.LogInformation(
+            "Found {CategoriesCount} categories with name: {CategoryName}",
+            categories.Count(),
+            name);
         return categories;
     }
 
-    public async Task<Category?> CreateAsync(Category category, CancellationToken ct = default)
+    public async Task<Result<Category>> CreateAsync(Category category, CancellationToken ct = default)
     {
         _logger.LogInformation("Creating category: {CategoryName}", category.Name);
-        var existingCategories = (await _uow.Categories.GetByName(category.Name, ct)).ToArray();
-        if (existingCategories.Length > 0)
+
+        if (await _uow.Categories.CheckCategorySameNameAsync(category.Name, category.ParentCategoryId, ct))
         {
-            var existing = existingCategories.FirstOrDefault(c => c.ParentCategoryId == category.ParentCategoryId);
-            if (existing != null)
-            {
-                _logger.LogInformation("Category already exists: {CategoryId} - {CategoryName}", existing.Id, existing.Name);
-                return existing;
-            }
-            return null;
+            return Result<Category>.Failure(
+                ResultCodes.CategorySameName,
+                $"Category ({category.Name}) is already in the category");
         }
+
         var cat = await CreateCategory(category, ct);
         await _uow.SaveChangesAsync(ct);
         _logger.LogInformation("Category created successfully: {CategoryId} - {CategoryName}", cat.Id, cat.Name);
-        return cat;
+        return Result<Category>.Success(cat);
     }
 
     public async Task<Result<Category>> UpdateAsync(Guid id, Category category, CancellationToken ct = default)
@@ -71,6 +73,7 @@ public class CategoryService : ICategoryService
             _logger.LogWarning($"Category.UpdateAsync: Category name is empty or whitespace");
             return Result<Category>.Failure(ResultCodes.InvalidInput, "Category name is empty or whitespace");
         }
+
         var existing = await _uow.Categories.GetByIdAsync(id, ct);
         if (existing == null)
         {
@@ -78,12 +81,11 @@ public class CategoryService : ICategoryService
             return Result<Category>.Failure(ResultCodes.NotFound, $"Category with ID {id} not found");
         }
 
-        if (existing.Name != category.Name)
+        if (await _uow.Categories.CheckCategorySameNameAsync(category.Name, category.ParentCategoryId, ct))
         {
-            if (await _uow.Categories.CheckCategorySameNameAsync(category.Name, category.ParentCategoryId, ct))
-            {
-                return Result<Category>.Failure(ResultCodes.CategorySameName, $"Category ({category.Name}) is already in the category");
-            }
+            return Result<Category>.Failure(
+                ResultCodes.CategorySameName,
+                $"Category ({category.Name}) is already in the category");
         }
 
         existing.Name = category.Name;
@@ -104,17 +106,21 @@ public class CategoryService : ICategoryService
             _logger.LogWarning($"Category with ID {id} not found");
             return Result<Category>.Failure(ResultCodes.NotFound, $"Category with ID {id} not found");
         }
+
         if (category.SubCategories.Count > 0)
         {
             _logger.LogWarning($"Category with ID {id} has subcategories and will not delete");
-            return Result<Category>.Failure(ResultCodes.CategoryRemovingNoAllowedBySubCategories, $"Category ({category.Name}) has subcategories");
+            return Result<Category>.Failure(
+                ResultCodes.CategoryRemovingNoAllowedBySubCategories,
+                $"Category ({category.Name}) has subcategories");
         }
+
         try
         {
             _uow.Categories.Delete(category);
             await _uow.SaveChangesAsync(ct);
             _logger.LogInformation($"Category deleted successfully: {id}");
-            return Result<Category>.Success(category!);
+            return Result<Category>.Success(category);
         }
         catch (Exception ex)
         {
