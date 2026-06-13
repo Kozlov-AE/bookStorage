@@ -1,0 +1,45 @@
+@use 'variables' as *;
+
+:root {
+  --bg: #{$color-bg};
+  --bg-secondary: #{$color-bg-secondary};
+  --bg-tertiary: #{$color-bg-tertiary};
+  --text: #{$color-text};
+  --text-secondary: #{$color-text-secondary};
+  --text-muted: #{$color-text-muted};
+  --border: #{$color-border};
+  --border-light: #{$color-border-light};
+  --primary: #{$color-primary};
+  --primary-hover: #{$color-primary-hover};
+  --accent: #{$color-accent};
+  --accent-hover: #{$color-accent-hover};
+  --danger: #{$color-danger};
+  --danger-hover: #{$color-danger-hover};
+  --success: #{$color-success};
+  --shadow-sm: #{$shadow-sm};
+  --shadow-md: #{$shadow-md};
+  --shadow-lg: #{$shadow-lg};
+  --radius-sm: #{$radius-sm};
+  --radius-md: #{$radius-md};
+  --radius-lg: #{$radius-lg};
+  --header-height: #{$header-height};
+  --sidebar-width: #{$sidebar-width};
+}
+
+.dark {
+  --bg: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #020617;
+  --text: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #64748b;
+  --border: #334155;
+  --border-light: #1e293b;
+  --primary: #94a3b8;
+  --primary-hover: #cbd5e1;
+  --accent: #60a5fa;
+  --accent-hover: #93c5fd;
+  --danger: #f87171;
+  --danger-hover: #ef4444;
+  --success: #4ade80;
+}
