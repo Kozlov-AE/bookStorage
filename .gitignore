@@ -142,3 +142,4 @@ src/BookStorage.Api/logs
 .gigacode
 .opencode
 src/BookStorage.Api/appsettings.Development.json
+client/bookStorageNew.spa/storybook-static
