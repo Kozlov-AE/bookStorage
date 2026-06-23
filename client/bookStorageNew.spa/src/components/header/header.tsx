@@ -1,27 +1,30 @@
+import {BookOpen, Menu, PlusCircle, Upload, Users, Sun, Moon} from "lucide-react";
+import {Button} from "../ui/button/button.tsx";
 import {useAppDispatch, useAppSelector} from "../../store/hooks.ts";
-import {setSidebarOpen, toggleTheme} from "../../store/uiSlice.ts";
+import {DARK_THEME_NAME, setSidebarOpen, toggleTheme} from "../../store/uiSlice.ts";
+import './header.scss';
 
 function HeaderUi() {
     const theme = useAppSelector(s => s.ui.theme);
     const dispatch = useAppDispatch();
 
     return (
-        <header className="header">
-            <div className="header__left">
-                <button className="header__menu-btn" onClick={() => dispatch(setSidebarOpen(true))} aria-label="Открыть меню">
-                    ☰
-                </button>
-                <h1 className="header__logo">BookStorage</h1>
+        <header className='header'>
+            <div className='header__left'>
+                <Button variant='ghost' size='icon' onClick={() => dispatch(setSidebarOpen(true))}>
+                    <Menu/>
+                </Button>
+                <BookOpen className='header__logo'/>
+                <span>BookStorage</span>
+                <div className='header__separator'/>
             </div>
-            <div className="header__right">
-                <button
-                    className="header__theme-btn"
-                    onClick={() => dispatch(toggleTheme())}
-                    aria-label="Переключить тему"
-                >
-                    {theme === 'light' ? '🌙' : '☀️'}
-                </button>
+            <div className='header__actions'>
+
             </div>
+            <div className='header__spacer'/>
+            <Button variant='ghost' size='icon' onClick={() => dispatch(toggleTheme())}>
+                {theme === DARK_THEME_NAME ? <Sun/> : <Moon/>}
+            </Button>
         </header>
     )
 }

@@ -3,39 +3,49 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   height: $header-height;
+  width: 100%;
   padding: 0 16px;
   background: var(--bg);
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
   z-index: 100;
+  gap: 8px;
 
   &__left {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
   }
 
   &__logo {
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 16px;
+    font-weight: 700;
+    white-space: nowrap;
   }
 
-  &__menu-btn,
-  &__theme-btn {
-    width: 36px;
-    height: 36px;
+  &__separator {
+    width: 1px;
+    height: 24px;
+    background: var(--border);
+    margin: 0 4px;
+  }
+
+  &__actions {
     display: flex;
     align-items: center;
-    justify-content: center;
-    border-radius: $radius-md;
-    font-size: 18px;
-    transition: background 0.2s;
+    gap: 2px;
+  }
 
-    &:hover {
-      background: var(--bg-secondary);
+  &__spacer {
+    flex: 1;
+  }
+
+  // Mobile: hide text labels on small screens
+  @media (max-width: 640px) {
+    .hide-mobile {
+      display: none;
     }
   }
 }

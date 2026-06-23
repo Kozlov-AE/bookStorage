@@ -11,7 +11,7 @@ const meta: Meta<typeof Button> = {
         },
         size: {
             control: 'select',
-            options: ['small', 'medium', 'large'],
+            options: ['small', 'medium', 'large', 'icon' ],
         },
         disabled: {
             control: 'boolean'
@@ -28,5 +28,13 @@ export const Primary: Story = {
         variant: 'primary',
         size: 'medium',
         children: 'Button',
+    },
+};
+
+export const Icon: Story = {
+    args: {
+        variant: 'primary',
+        size: 'icon',
+        children: '☀️',
     },
 };

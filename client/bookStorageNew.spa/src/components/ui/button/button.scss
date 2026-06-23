@@ -43,6 +43,12 @@
     font-size: 15px;
   }
 
+  &--icon {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+  }
+
   // Variants
   &--primary {
     background: var(--accent);
